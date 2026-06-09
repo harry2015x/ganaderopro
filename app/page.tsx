@@ -2,7 +2,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-green-50 p-10">
       <h1 className="text-5xl font-bold text-green-800">
-        🐄 GanaderoPro
+        🐄 GanaderoPro2
       </h1>
 
       <p className="mt-4 text-xl text-gray-700">
