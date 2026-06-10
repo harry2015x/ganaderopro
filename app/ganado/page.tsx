@@ -33,16 +33,22 @@ export default function GanadoPage() {
     }
   }, []);
   
-  const nuevosAnimales = [...animales, nuevoAnimal];
-
-setAnimales(nuevosAnimales);
-
-localStorage.setItem(
-  "animales",
-  JSON.stringify(nuevosAnimales)
-);
+  function guardarAnimal() {
+    const nuevoAnimal = {
+      arete,
+      nombre,
+      raza,
+      peso: Number(peso),
+    };
   
-    setAnimales([...animales, nuevoAnimal]);
+    const nuevosAnimales = [...animales, nuevoAnimal];
+  
+    setAnimales(nuevosAnimales);
+  
+    localStorage.setItem(
+      "animales",
+      JSON.stringify(nuevosAnimales)
+    );
   
     setArete("");
     setNombre("");
