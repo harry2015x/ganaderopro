@@ -86,5 +86,9 @@ export default function GanadoPage() {
     <button className="mt-4 bg-green-700 text-white px-6 py-3 rounded">
       Guardar Animal
     </button>
-  </div>
+    </div>
 )}
+
+</main>
+);
+}
