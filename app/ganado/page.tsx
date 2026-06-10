@@ -4,21 +4,26 @@ import { useState } from "react";
 
 export default function GanadoPage() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  
+  const [arete, setArete] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [raza, setRaza] = useState("");
+  const [peso, setPeso] = useState("");
 
-    const animales = [
-      {
-        arete: "001",
-        nombre: "Lucera",
-        raza: "Brahman",
-        peso: 450,
-      },
-      {
-        arete: "002",
-        nombre: "Relámpago",
-        raza: "Gyr",
-        peso: 520,
-      },
-    ];
+  const [animales, setAnimales] = useState([
+    {
+      arete: "001",
+      nombre: "Lucera",
+      raza: "Brahman",
+      peso: 450,
+    },
+    {
+      arete: "002",
+      nombre: "Relámpago",
+      raza: "Gyr",
+      peso: 520,
+    },
+  ]);
   
     return (
       <main className="p-10">
