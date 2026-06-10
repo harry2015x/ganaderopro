@@ -162,24 +162,25 @@ export default function GanadoPage() {
   </thead>
 
   <tbody>
-    {animales.map((animal, index) => (
-      <tr key={index}>
-        <td className="border p-3">{animal.arete}</td>
-        <td className="border p-3">{animal.nombre}</td>
-        <td className="border p-3">{animal.raza}</td>
-        <td className="border p-3">{animal.peso} kg</td>
-      </tr>
+  {animales.map((animal, index) => (
+  <tr key={index}>
+    <td className="border p-3">{animal.arete}</td>
+    <td className="border p-3">{animal.nombre}</td>
+    <td className="border p-3">{animal.raza}</td>
+    <td className="border p-3">{animal.peso} kg</td>
 
-<td className="border p-3 text-center">
-<button
-  onClick={() => eliminarAnimal(index)}
-  className="bg-red-600 text-white px-3 py-1 rounded"
->
-  🗑️ Eliminar
-</button>
-</td>
+    <td className="border p-3 text-center">
+      <button
+        onClick={() => eliminarAnimal(index)}
+        className="bg-red-600 text-white px-3 py-1 rounded"
+      >
+        🗑️ Eliminar
+      </button>
+    </td>
+  </tr>
+))}
 
-    ))}
+
   </tbody>
 </table>
 
