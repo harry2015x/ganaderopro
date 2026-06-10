@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function GanadoPage() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -24,6 +24,14 @@ export default function GanadoPage() {
       peso: 520,
     },
   ]);
+
+  useEffect(() => {
+    const animalesGuardados = localStorage.getItem("animales");
+  
+    if (animalesGuardados) {
+      setAnimales(JSON.parse(animalesGuardados));
+    }
+  }, []);
   
   function guardarAnimal() {
     const nuevoAnimal = {
