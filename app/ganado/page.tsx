@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabase";
 
 export default function GanadoPage() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -11,23 +12,28 @@ export default function GanadoPage() {
   const [peso, setPeso] = useState("");
   const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
 
-  //BUSCA ANIMALES//
-  const [busqueda, setBusqueda] = useState("");
+  // BUSCADOR DE ANIMALES
+const [busqueda, setBusqueda] = useState("");
 
-  const [animales, setAnimales] = useState([
-    {
-      arete: "001",
-      nombre: "Lucera",
-      raza: "Brahman",
-      peso: 450,
-    },
-    {
-      arete: "002",
-      nombre: "Relámpago",
-      raza: "Gyr",
-      peso: 520,
-    },
-  ]);
+const [animales, setAnimales] = useState<{
+  arete: string;
+  nombre: string;
+  raza: string;
+  peso: number;
+}[]>([
+  {
+    arete: "001",
+    nombre: "Lucera",
+    raza: "Brahman",
+    peso: 450,
+  },
+  {
+    arete: "002",
+    nombre: "Relámpago",
+    raza: "Gyr",
+    peso: 520,
+  },
+]);
 
   useEffect(() => {
     const animalesGuardados = localStorage.getItem("animales");
@@ -37,35 +43,37 @@ export default function GanadoPage() {
     }
   }, []);
   
-  function guardarAnimal() {
+  async function guardarAnimal() {
+
     if (editandoIndex !== null) {
+  
       const nuevosAnimales = [...animales];
-    
+  
       nuevosAnimales[editandoIndex] = {
         arete,
         nombre,
         raza,
         peso: Number(peso),
       };
-    
+  
       setAnimales(nuevosAnimales);
-    
+  
       localStorage.setItem(
         "animales",
         JSON.stringify(nuevosAnimales)
       );
-    
+  
       setArete("");
       setNombre("");
       setRaza("");
       setPeso("");
-    
+  
       setEditandoIndex(null);
-    
       setMostrarFormulario(false);
-    
+  
       return;
     }
+  
     const nuevoAnimal = {
       arete,
       nombre,
@@ -73,24 +81,35 @@ export default function GanadoPage() {
       peso: Number(peso),
     };
   
-    const nuevosAnimales = [...animales, nuevoAnimal];
-  
-    setAnimales(nuevosAnimales);
-  
-    localStorage.setItem(
-      "animales",
-      JSON.stringify(nuevosAnimales)
-    );
-  
-    setArete("");
-    setNombre("");
-    setRaza("");
-    setPeso("");
-  
-    setMostrarFormulario(false);
-  }
+    const { error } = await supabase
+  .from("animales")
+  .insert([nuevoAnimal]);
 
-  function eliminarAnimal(index: number) {
+if (error) {
+  console.log(error);
+  alert("Error guardando animal");
+  return;
+}
+
+const nuevosAnimales = [...animales, nuevoAnimal];
+
+setAnimales(nuevosAnimales);
+
+localStorage.setItem(
+  "animales",
+  JSON.stringify(nuevosAnimales)
+);
+
+setArete("");
+setNombre("");
+setRaza("");
+setPeso("");
+
+setMostrarFormulario(false);
+
+} // <- ESTA LLAVE CIERRA guardarAnimal()
+
+function eliminarAnimal(index: number) {
 
     //CONFIRMAR SI QUIERE BORRAR EL REGISTRO//
     if (!confirm("¿Está seguro de eliminar este animal?")) {
@@ -154,8 +173,10 @@ export default function GanadoPage() {
 {mostrarFormulario && (
   <div className="bg-white p-6 rounded-lg shadow mb-6 border">
     <h2 className="text-2xl font-bold text-green-700 mb-4">
-      Registrar Animal
-    </h2>
+  {editandoIndex !== null
+    ? "Editar Animal"
+    : "Registrar Animal"}
+</h2>
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
@@ -202,14 +223,18 @@ export default function GanadoPage() {
       </select>
 
     </div>
-
     <button
   onClick={guardarAnimal}
   className="mt-4 bg-green-700 text-white px-6 py-3 rounded"
 >
-  Guardar Animal
+  {editandoIndex !== null
+    ? "Actualizar Animal"
+    : "Guardar Animal"}
 </button>
     </div>
+
+
+
 )}
 <table className="w-full border border-gray-300 mt-6">
   <thead>
