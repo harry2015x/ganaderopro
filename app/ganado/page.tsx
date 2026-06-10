@@ -33,13 +33,14 @@ export default function GanadoPage() {
     }
   }, []);
   
-  function guardarAnimal() {
-    const nuevoAnimal = {
-      arete,
-      nombre,
-      raza,
-      peso: Number(peso),
-    };
+  const nuevosAnimales = [...animales, nuevoAnimal];
+
+setAnimales(nuevosAnimales);
+
+localStorage.setItem(
+  "animales",
+  JSON.stringify(nuevosAnimales)
+);
   
     setAnimales([...animales, nuevoAnimal]);
   
