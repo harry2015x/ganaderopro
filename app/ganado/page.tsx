@@ -16,61 +16,61 @@ export default function GanadoPage() {
 const [busqueda, setBusqueda] = useState("");
 
 const [animales, setAnimales] = useState<{
+  id?: number;
   arete: string;
   nombre: string;
   raza: string;
   peso: number;
-}[]>([
-  {
-    arete: "001",
-    nombre: "Lucera",
-    raza: "Brahman",
-    peso: 450,
-  },
-  {
-    arete: "002",
-    nombre: "Relámpago",
-    raza: "Gyr",
-    peso: 520,
-  },
-]);
+}[]>([]);
 
-  useEffect(() => {
-    const animalesGuardados = localStorage.getItem("animales");
-  
-    if (animalesGuardados) {
-      setAnimales(JSON.parse(animalesGuardados));
-    }
-  }, []);
+useEffect(() => {
+  cargarAnimales();
+}, []);
+
+async function cargarAnimales() {
+  const { data, error } = await supabase
+    .from("animales")
+    .select("*");
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+
+  setAnimales(data || []);
+}
   
   async function guardarAnimal() {
 
     if (editandoIndex !== null) {
-  
-      const nuevosAnimales = [...animales];
-  
-      nuevosAnimales[editandoIndex] = {
-        arete,
-        nombre,
-        raza,
-        peso: Number(peso),
-      };
-  
-      setAnimales(nuevosAnimales);
-  
-      localStorage.setItem(
-        "animales",
-        JSON.stringify(nuevosAnimales)
-      );
-  
+
+      const animal = animales[editandoIndex];
+    
+      const { error } = await supabase
+        .from("animales")
+        .update({
+          arete,
+          nombre,
+          raza,
+          peso: Number(peso),
+        })
+        .eq("id", animal.id);
+    
+      if (error) {
+        alert(error.message);
+        return;
+      }
+    
+      await cargarAnimales();
+    
       setArete("");
       setNombre("");
       setRaza("");
       setPeso("");
-  
+    
       setEditandoIndex(null);
       setMostrarFormulario(false);
-  
+    
       return;
     }
   
@@ -91,14 +91,7 @@ const [animales, setAnimales] = useState<{
     return;
   }
 
-const nuevosAnimales = [...animales, nuevoAnimal];
-
-setAnimales(nuevosAnimales);
-
-localStorage.setItem(
-  "animales",
-  JSON.stringify(nuevosAnimales)
-);
+  await cargarAnimales();
 
 setArete("");
 setNombre("");
@@ -109,24 +102,25 @@ setMostrarFormulario(false);
 
 } // <- ESTA LLAVE CIERRA guardarAnimal()
 
-function eliminarAnimal(index: number) {
-
-    //CONFIRMAR SI QUIERE BORRAR EL REGISTRO//
-    if (!confirm("¿Está seguro de eliminar este animal?")) {
-      return;
-    }
-    const nuevosAnimales = animales.filter(
-      (_, i) => i !== index
-    );
-  
-    setAnimales(nuevosAnimales);
-  
-    localStorage.setItem(
-      "animales",
-      JSON.stringify(nuevosAnimales)
-    );
+async function eliminarAnimal(index: number) {
+  if (!confirm("¿Está seguro de eliminar este animal?")) {
+    return;
   }
 
+  const animal = animales[index];
+
+  const { error } = await supabase
+    .from("animales")
+    .delete()
+    .eq("id", animal.id);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  await cargarAnimales();
+}
   function editarAnimal(index: number) {
     const animal = animales[index];
   
@@ -259,7 +253,7 @@ function eliminarAnimal(index: number) {
         .includes(busqueda.toLowerCase())
   )
   .map((animal, index) => (
-  <tr key={index}>
+    <tr key={animal.id}>
     <td className="border p-3">{animal.arete}</td>
     <td className="border p-3">{animal.nombre}</td>
     <td className="border p-3">{animal.raza}</td>
