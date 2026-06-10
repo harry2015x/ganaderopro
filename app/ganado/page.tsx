@@ -184,13 +184,22 @@ export default function GanadoPage() {
     <td className="border p-3">{animal.peso} kg</td>
 
     <td className="border p-3 text-center">
-      <button
-        onClick={() => eliminarAnimal(index)}
-        className="bg-red-600 text-white px-3 py-1 rounded"
-      >
-        🗑️ Eliminar
-      </button>
-    </td>
+
+<button
+  onClick={() => editarAnimal(index)}
+  className="bg-yellow-500 text-white px-3 py-1 rounded mr-2"
+>
+  ✏️ Editar
+</button>
+
+<button
+  onClick={() => eliminarAnimal(index)}
+  className="bg-red-600 text-white px-3 py-1 rounded"
+>
+  🗑️ Eliminar
+</button>
+
+</td>
   </tr>
 ))}
 
