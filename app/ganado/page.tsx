@@ -1,5 +1,10 @@
+"use client";
 import Link from "next/link";
+import { useState } from "react";
+
 export default function GanadoPage() {
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+
     const animales = [
       {
         arete: "001",
@@ -30,30 +35,59 @@ export default function GanadoPage() {
   className="bg-green-700 text-white px-4 py-2 rounded mb-6 hover:bg-green-800"
 >
   ➕ Registrar Animal
+  <button
+  onClick={() => setMostrarFormulario(!mostrarFormulario)}
+  className="bg-blue-600 text-white px-4 py-2 rounded mb-6 ml-4"
+>
+  ➕ Registrar Animal
 </button>
-        <table className="w-full border">
-          <thead className="bg-green-700 text-white">
-            <tr>
-              <th className="p-3">Arete</th>
-              <th className="p-3">Nombre</th>
-              <th className="p-3">Raza</th>
-              <th className="p-3">Peso</th>
-            </tr>
-          </thead>
-  
-          <tbody>
-            {animales.map((animal) => (
-              <tr key={animal.arete}>
-                <td className="border p-3">{animal.arete}</td>
-                <td className="border p-3">{animal.nombre}</td>
-                <td className="border p-3">{animal.raza}</td>
-                <td className="border p-3">
-                  {animal.peso} kg
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </main>
-    );
-  }
+
+{mostrarFormulario && (
+  <div className="bg-white p-6 rounded-lg shadow mb-6 border">
+    <h2 className="text-2xl font-bold text-green-700 mb-4">
+      Registrar Animal
+    </h2>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <input
+        type="text"
+        placeholder="Número de Arete"
+        className="border p-3 rounded"
+      />
+
+      <input
+        type="text"
+        placeholder="Nombre"
+        className="border p-3 rounded"
+      />
+
+      <input
+        type="text"
+        placeholder="Raza"
+        className="border p-3 rounded"
+      />
+
+      <input
+        type="number"
+        placeholder="Peso"
+        className="border p-3 rounded"
+      />
+
+      <input
+        type="date"
+        className="border p-3 rounded"
+      />
+
+      <select className="border p-3 rounded">
+        <option>Macho</option>
+        <option>Hembra</option>
+      </select>
+
+    </div>
+
+    <button className="mt-4 bg-green-700 text-white px-6 py-3 rounded">
+      Guardar Animal
+    </button>
+  </div>
+)}
