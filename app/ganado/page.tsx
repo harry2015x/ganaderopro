@@ -9,6 +9,7 @@ export default function GanadoPage() {
   const [nombre, setNombre] = useState("");
   const [raza, setRaza] = useState("");
   const [peso, setPeso] = useState("");
+  const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
 
   const [animales, setAnimales] = useState([
     {
@@ -69,6 +70,19 @@ export default function GanadoPage() {
       "animales",
       JSON.stringify(nuevosAnimales)
     );
+  }
+
+  function editarAnimal(index: number) {
+    const animal = animales[index];
+  
+    setArete(animal.arete);
+    setNombre(animal.nombre);
+    setRaza(animal.raza);
+    setPeso(String(animal.peso));
+  
+    setEditandoIndex(index);
+  
+    setMostrarFormulario(true);
   }
 
     return (
