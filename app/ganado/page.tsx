@@ -25,6 +25,25 @@ export default function GanadoPage() {
     },
   ]);
   
+  function guardarAnimal() {
+    const nuevoAnimal = {
+      arete,
+      nombre,
+      raza,
+      peso: Number(peso),
+    };
+  
+    setAnimales([...animales, nuevoAnimal]);
+  
+    setArete("");
+    setNombre("");
+    setRaza("");
+    setPeso("");
+  
+    setMostrarFormulario(false);
+  }
+
+
     return (
       <main className="p-10">
         <Link
@@ -96,11 +115,36 @@ export default function GanadoPage() {
 
     </div>
 
-    <button className="mt-4 bg-green-700 text-white px-6 py-3 rounded">
-      Guardar Animal
-    </button>
+    <button
+  onClick={guardarAnimal}
+  className="mt-4 bg-green-700 text-white px-6 py-3 rounded"
+>
+  Guardar Animal
+</button>
     </div>
 )}
+<table className="w-full border border-gray-300 mt-6">
+  <thead>
+    <tr className="bg-green-700 text-white">
+      <th className="border p-3">Arete</th>
+      <th className="border p-3">Nombre</th>
+      <th className="border p-3">Raza</th>
+      <th className="border p-3">Peso</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {animales.map((animal, index) => (
+      <tr key={index}>
+        <td className="border p-3">{animal.arete}</td>
+        <td className="border p-3">{animal.nombre}</td>
+        <td className="border p-3">{animal.raza}</td>
+        <td className="border p-3">{animal.peso} kg</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
 
 </main>
 );
