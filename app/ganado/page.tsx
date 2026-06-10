@@ -52,29 +52,37 @@ export default function GanadoPage() {
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-      <input
-        type="text"
-        placeholder="Número de Arete"
-        className="border p-3 rounded"
-      />
+    <input
+  type="text"
+  placeholder="Número de Arete"
+  value={arete}
+  onChange={(e) => setArete(e.target.value)}
+  className="border p-3 rounded"
+/>
 
-      <input
-        type="text"
-        placeholder="Nombre"
-        className="border p-3 rounded"
-      />
+<input
+  type="text"
+  placeholder="Nombre"
+  value={nombre}
+  onChange={(e) => setNombre(e.target.value)}
+  className="border p-3 rounded"
+/>
 
-      <input
-        type="text"
-        placeholder="Raza"
-        className="border p-3 rounded"
-      />
+<input
+  type="text"
+  placeholder="Raza"
+  value={raza}
+  onChange={(e) => setRaza(e.target.value)}
+  className="border p-3 rounded"
+/>
 
-      <input
-        type="number"
-        placeholder="Peso"
-        className="border p-3 rounded"
-      />
+<input
+  type="number"
+  placeholder="Peso"
+  value={peso}
+  onChange={(e) => setPeso(e.target.value)}
+  className="border p-3 rounded"
+/>
 
       <input
         type="date"
