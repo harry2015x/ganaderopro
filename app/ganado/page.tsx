@@ -11,6 +11,9 @@ export default function GanadoPage() {
   const [peso, setPeso] = useState("");
   const [editandoIndex, setEditandoIndex] = useState<number | null>(null);
 
+  //BUSCA ANIMALES//
+  const [busqueda, setBusqueda] = useState("");
+
   const [animales, setAnimales] = useState([
     {
       arete: "001",
@@ -125,12 +128,23 @@ export default function GanadoPage() {
           Inventario Ganadero
         </h1>
         
+
   <button
   onClick={() => setMostrarFormulario(!mostrarFormulario)}
   className="bg-blue-600 text-white px-4 py-2 rounded mb-6 ml-4"
 >
   ➕ Registrar Animal
 </button>
+
+<div className="mb-6">
+  <input
+    type="text"
+    placeholder="🔍 Buscar por arete o nombre"
+    value={busqueda}
+    onChange={(e) => setBusqueda(e.target.value)}
+    className="border p-3 rounded w-full max-w-md"
+  />
+</div>
 
 {mostrarFormulario && (
   <div className="bg-white p-6 rounded-lg shadow mb-6 border">
@@ -204,7 +218,17 @@ export default function GanadoPage() {
   </thead>
 
   <tbody>
-  {animales.map((animal, index) => (
+  {animales
+  .filter(
+    (animal) =>
+      animal.arete
+        .toLowerCase()
+        .includes(busqueda.toLowerCase()) ||
+      animal.nombre
+        .toLowerCase()
+        .includes(busqueda.toLowerCase())
+  )
+  .map((animal, index) => (
   <tr key={index}>
     <td className="border p-3">{animal.arete}</td>
     <td className="border p-3">{animal.nombre}</td>
