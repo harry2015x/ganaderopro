@@ -35,6 +35,34 @@ export default function GanadoPage() {
   }, []);
   
   function guardarAnimal() {
+    if (editandoIndex !== null) {
+      const nuevosAnimales = [...animales];
+    
+      nuevosAnimales[editandoIndex] = {
+        arete,
+        nombre,
+        raza,
+        peso: Number(peso),
+      };
+    
+      setAnimales(nuevosAnimales);
+    
+      localStorage.setItem(
+        "animales",
+        JSON.stringify(nuevosAnimales)
+      );
+    
+      setArete("");
+      setNombre("");
+      setRaza("");
+      setPeso("");
+    
+      setEditandoIndex(null);
+    
+      setMostrarFormulario(false);
+    
+      return;
+    }
     const nuevoAnimal = {
       arete,
       nombre,
