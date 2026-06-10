@@ -85,11 +85,11 @@ const [animales, setAnimales] = useState<{
   .from("animales")
   .insert([nuevoAnimal]);
 
-if (error) {
-  console.log(error);
-  alert("Error guardando animal");
-  return;
-}
+  if (error) {
+    console.log(error);
+    alert(error.message);
+    return;
+  }
 
 const nuevosAnimales = [...animales, nuevoAnimal];
 
