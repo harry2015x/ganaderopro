@@ -91,6 +91,11 @@ export default function GanadoPage() {
   }
 
   function eliminarAnimal(index: number) {
+
+    //CONFIRMAR SI QUIERE BORRAR EL REGISTRO//
+    if (!confirm("¿Está seguro de eliminar este animal?")) {
+      return;
+    }
     const nuevosAnimales = animales.filter(
       (_, i) => i !== index
     );
