@@ -58,6 +58,18 @@ export default function GanadoPage() {
     setMostrarFormulario(false);
   }
 
+  function eliminarAnimal(index: number) {
+    const nuevosAnimales = animales.filter(
+      (_, i) => i !== index
+    );
+  
+    setAnimales(nuevosAnimales);
+  
+    localStorage.setItem(
+      "animales",
+      JSON.stringify(nuevosAnimales)
+    );
+  }
 
     return (
       <main className="p-10">
@@ -145,6 +157,7 @@ export default function GanadoPage() {
       <th className="border p-3">Nombre</th>
       <th className="border p-3">Raza</th>
       <th className="border p-3">Peso</th>
+      <th className="border p-3">Acciones</th>
     </tr>
   </thead>
 
@@ -156,6 +169,16 @@ export default function GanadoPage() {
         <td className="border p-3">{animal.raza}</td>
         <td className="border p-3">{animal.peso} kg</td>
       </tr>
+
+<td className="border p-3 text-center">
+<button
+  onClick={() => eliminarAnimal(index)}
+  className="bg-red-600 text-white px-3 py-1 rounded"
+>
+  🗑️ Eliminar
+</button>
+</td>
+
     ))}
   </tbody>
 </table>
