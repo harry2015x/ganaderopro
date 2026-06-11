@@ -14,7 +14,29 @@ export default function PesajesPage() {
   useEffect(() => {
     cargarAnimales();
   }, []);
+  async function guardarPesaje() {
 
+    const { error } = await supabase
+      .from("Pesaje")
+      .insert([
+        {
+          animal_id: Number(animalId),
+          fecha,
+          peso: Number(peso),
+        },
+      ]);
+  
+    if (error) {
+      alert(error.message);
+      return;
+    }
+  
+    alert("Pesaje guardado correctamente");
+  
+    setAnimalId("");
+    setFecha("");
+    setPeso("");
+  }
   async function cargarAnimales() {
     const { data, error } = await supabase
       .from("animales")
@@ -77,10 +99,11 @@ export default function PesajesPage() {
         </div>
 
         <button
-          className="mt-4 bg-green-700 text-white px-6 py-3 rounded"
-        >
-          Guardar Pesaje
-        </button>
+  onClick={guardarPesaje}
+  className="mt-4 bg-green-700 text-white px-6 py-3 rounded"
+>
+  Guardar Pesaje
+</button>
 
       </div>
 
