@@ -21,9 +21,9 @@ export default function Sidebar() {
           💉 Vacunación
         </Link>
 
-        <Link href="#">
-          ⚖️ Pesajes
-        </Link>
+        <Link href="/pesajes">
+  ⚖️ Pesajes
+</Link>
 
         <Link href="#">
           ❤️ Reproducción
