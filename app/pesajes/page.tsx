@@ -1,6 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabase";
+
+const [animalId, setAnimalId] = useState("");
+const [fecha, setFecha] = useState("");
+const [peso, setPeso] = useState("");
+
+const [animales, setAnimales] = useState<any[]>([]);
+
+useEffect(() => {
+  cargarAnimales();
+}, []);
+
+async function cargarAnimales() {
+  const { data, error } = await supabase
+    .from("animales")
+    .select("*")
+    .order("nombre");
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+
+  setAnimales(data || []);
+}
 
 export default function PesajesPage() {
 
@@ -19,15 +44,25 @@ export default function PesajesPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-          <select
-            value={animalId}
-            onChange={(e) => setAnimalId(e.target.value)}
-            className="border p-3 rounded"
-          >
-            <option value="">
-              Seleccione Animal
-            </option>
-          </select>
+        <select
+  value={animalId}
+  onChange={(e) => setAnimalId(e.target.value)}
+  className="border p-3 rounded"
+>
+  <option value="">
+    Seleccione Animal
+  </option>
+
+  {animales.map((animal) => (
+    <option
+      key={animal.id}
+      value={animal.id}
+    >
+      {animal.arete} - {animal.nombre}
+    </option>
+  ))}
+
+</select>
 
           <input
             type="date"
