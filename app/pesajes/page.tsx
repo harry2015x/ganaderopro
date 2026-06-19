@@ -7,6 +7,9 @@ export default function PesajesPage() {
   const [animalId, setAnimalId] = useState("");
   const [fecha, setFecha] = useState("");
   const [peso, setPeso] = useState("");
+  const [editandoId, setEditandoId] = useState<number | null>(null);
+
+
 
   const [animales, setAnimales] = useState<any[]>([]);
   const [pesajes, setPesajes] = useState<any[]>([]);
@@ -17,6 +20,36 @@ export default function PesajesPage() {
     cargarAnimales();
     cargarPesajes();
   }, []);
+
+  function editarPesaje(pesaje: any) {
+    setEditandoId(pesaje.id);
+    setAnimalId(String(pesaje.animal_id));
+    setFecha(pesaje.fecha);
+    setPeso(String(pesaje.peso));
+  }
+
+  async function eliminarPesaje(id: number) {
+
+    const confirmar = confirm(
+      "¿Desea eliminar este pesaje?"
+    );
+  
+    if (!confirmar) return;
+  
+    const { error } = await supabase
+      .from("Pesaje")
+      .delete()
+      .eq("id", id);
+  
+    if (error) {
+      alert(error.message);
+      return;
+    }
+  
+    await cargarPesajes();
+  
+    alert("Pesaje eliminado");
+  }
 
   async function cargarAnimales() {
     const { data, error } = await supabase
@@ -67,29 +100,51 @@ export default function PesajesPage() {
       alert("Debe completar todos los campos");
       return;
     }
-
-    const { error } = await supabase
-      .from("Pesaje")
-      .insert([
-        {
+  
+    let error;
+  
+    if (editandoId) {
+      const resultado = await supabase
+        .from("Pesaje")
+        .update({
           animal_id: Number(animalId),
           fecha,
           peso: Number(peso),
-        },
-      ]);
-
+        })
+        .eq("id", editandoId);
+  
+      error = resultado.error;
+    } else {
+      const resultado = await supabase
+        .from("Pesaje")
+        .insert([
+          {
+            animal_id: Number(animalId),
+            fecha,
+            peso: Number(peso),
+          },
+        ]);
+  
+      error = resultado.error;
+    }
+  
     if (error) {
       alert(error.message);
       return;
     }
-
+  
     await cargarPesajes();
-
-    alert("Pesaje guardado correctamente");
-
+  
+    alert(
+      editandoId
+        ? "Pesaje actualizado"
+        : "Pesaje guardado correctamente"
+    );
+  
     setAnimalId("");
     setFecha("");
     setPeso("");
+    setEditandoId(null);
   }
 
   return (
@@ -154,6 +209,8 @@ export default function PesajesPage() {
             <th className="border p-3">Animal</th>
               <th className="border p-3">Fecha</th>
               <th className="border p-3">Peso</th>
+              <th className="border p-3">Editar</th>
+<th className="border p-3">Eliminar</th>
             </tr>
           </thead>
 
@@ -171,6 +228,24 @@ export default function PesajesPage() {
                 <td className="border p-3">
                   {pesaje.peso} kg
                 </td>
+
+                <td className="border p-3 text-center">
+  <button
+    onClick={() => editarPesaje(pesaje)}
+    className="bg-yellow-500 text-white px-3 py-1 rounded"
+  >
+    ✏️
+  </button>
+</td>
+
+<td className="border p-3 text-center">
+  <button
+    onClick={() => eliminarPesaje(pesaje.id)}
+    className="bg-red-600 text-white px-3 py-1 rounded"
+  >
+    🗑️
+  </button>
+</td>
               </tr>
             ))}
 
