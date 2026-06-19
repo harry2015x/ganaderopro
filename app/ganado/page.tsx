@@ -135,155 +135,225 @@ async function eliminarAnimal(index: number) {
   }
 
     return (
-      <main className="p-10">
+      <main className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-6 md:p-10">
+        <div className="max-w-6xl mx-auto">
+
         <Link
-  href="/"
-  className="inline-block bg-green-700 text-white px-4 py-2 rounded mb-6"
->
-  ← Volver al Dashboard
-</Link>
-        <h1 className="text-4xl font-bold text-green-700 mb-6">
-          Inventario Ganadero
-        </h1>
-        
+          href="/"
+          className="inline-flex items-center gap-2 text-green-700 hover:text-green-900 font-medium mb-6 transition-colors"
+        >
+          ← Volver al Dashboard
+        </Link>
 
-  <button
-  onClick={() => setMostrarFormulario(!mostrarFormulario)}
-  className="bg-blue-600 text-white px-4 py-2 rounded mb-6 ml-4"
->
-  ➕ Registrar Animal
-</button>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-green-800 to-emerald-600 bg-clip-text text-transparent">
+              Inventario Ganadero
+            </h1>
+            <p className="text-gray-500 mt-1">
+              {animales.length} {animales.length === 1 ? "animal registrado" : "animales registrados"}
+            </p>
+          </div>
 
-<div className="mb-6">
-  <input
-    type="text"
-    placeholder="🔍 Buscar por arete o nombre"
-    value={busqueda}
-    onChange={(e) => setBusqueda(e.target.value)}
-    className="border p-3 rounded w-full max-w-md"
-  />
-</div>
+          <button
+            onClick={() => setMostrarFormulario(!mostrarFormulario)}
+            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-green-900/20 hover:shadow-lg hover:-translate-y-0.5 transition-all"
+          >
+            ➕ Registrar Animal
+          </button>
+        </div>
 
-{mostrarFormulario && (
-  <div className="bg-white p-6 rounded-lg shadow mb-6 border">
-    <h2 className="text-2xl font-bold text-green-700 mb-4">
-  {editandoIndex !== null
-    ? "Editar Animal"
-    : "Registrar Animal"}
-</h2>
+        {/* Buscador */}
+        <div className="mb-6 relative max-w-md">
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+            🔍
+          </span>
+          <input
+            type="text"
+            placeholder="Buscar por arete o nombre"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="w-full border border-gray-200 bg-white/80 backdrop-blur-sm pl-11 pr-4 py-3 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+          />
+        </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Formulario */}
+        {mostrarFormulario && (
+          <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg ring-1 ring-gray-100 mb-8 animate-in fade-in slide-in-from-top-2 duration-300">
+            <h2 className="text-xl font-bold text-green-700 mb-5 flex items-center gap-2">
+              {editandoIndex !== null ? "✏️ Editar Animal" : "📝 Registrar Animal"}
+            </h2>
 
-    <input
-  type="text"
-  placeholder="Número de Arete"
-  value={arete}
-  onChange={(e) => setArete(e.target.value)}
-  className="border p-3 rounded"
-/>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-<input
-  type="text"
-  placeholder="Nombre"
-  value={nombre}
-  onChange={(e) => setNombre(e.target.value)}
-  className="border p-3 rounded"
-/>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                  Número de Arete
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej: 0234"
+                  value={arete}
+                  onChange={(e) => setArete(e.target.value)}
+                  className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                />
+              </div>
 
-<input
-  type="text"
-  placeholder="Raza"
-  value={raza}
-  onChange={(e) => setRaza(e.target.value)}
-  className="border p-3 rounded"
-/>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                  Nombre
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej: Lucero"
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                />
+              </div>
 
-<input
-  type="number"
-  placeholder="Peso"
-  value={peso}
-  onChange={(e) => setPeso(e.target.value)}
-  className="border p-3 rounded"
-/>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                  Raza
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej: Brahman"
+                  value={raza}
+                  onChange={(e) => setRaza(e.target.value)}
+                  className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                />
+              </div>
 
-      <input
-        type="date"
-        className="border p-3 rounded"
-      />
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                  Peso (kg)
+                </label>
+                <input
+                  type="number"
+                  placeholder="Ej: 320"
+                  value={peso}
+                  onChange={(e) => setPeso(e.target.value)}
+                  className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                />
+              </div>
 
-      <select className="border p-3 rounded">
-        <option>Macho</option>
-        <option>Hembra</option>
-      </select>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                  Fecha
+                </label>
+                <input
+                  type="date"
+                  className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                />
+              </div>
 
-    </div>
-    <button
-  onClick={guardarAnimal}
-  className="mt-4 bg-green-700 text-white px-6 py-3 rounded"
->
-  {editandoIndex !== null
-    ? "Actualizar Animal"
-    : "Guardar Animal"}
-</button>
-    </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                  Sexo
+                </label>
+                <select className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
+                  <option>Macho</option>
+                  <option>Hembra</option>
+                </select>
+              </div>
 
+            </div>
 
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={guardarAnimal}
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md shadow-green-900/20 hover:shadow-lg transition-all"
+              >
+                {editandoIndex !== null ? "Actualizar Animal" : "Guardar Animal"}
+              </button>
 
-)}
-<table className="w-full border border-gray-300 mt-6">
-  <thead>
-    <tr className="bg-green-700 text-white">
-      <th className="border p-3">Arete</th>
-      <th className="border p-3">Nombre</th>
-      <th className="border p-3">Raza</th>
-      <th className="border p-3">Peso</th>
-      <th className="border p-3">Acciones</th>
-    </tr>
-  </thead>
+              <button
+                onClick={() => setMostrarFormulario(false)}
+                className="px-6 py-3 rounded-xl font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
 
-  <tbody>
-  {animales
-  .filter(
-    (animal) =>
-      animal.arete
-        .toLowerCase()
-        .includes(busqueda.toLowerCase()) ||
-      animal.nombre
-        .toLowerCase()
-        .includes(busqueda.toLowerCase())
-  )
-  .map((animal, index) => (
-    <tr key={animal.id}>
-    <td className="border p-3">{animal.arete}</td>
-    <td className="border p-3">{animal.nombre}</td>
-    <td className="border p-3">{animal.raza}</td>
-    <td className="border p-3">{animal.peso} kg</td>
+        {/* Tabla */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md ring-1 ring-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-gradient-to-r from-green-700 to-emerald-700 text-white">
+                  <th className="p-4 font-semibold text-sm uppercase tracking-wide">Arete</th>
+                  <th className="p-4 font-semibold text-sm uppercase tracking-wide">Nombre</th>
+                  <th className="p-4 font-semibold text-sm uppercase tracking-wide">Raza</th>
+                  <th className="p-4 font-semibold text-sm uppercase tracking-wide">Peso</th>
+                  <th className="p-4 font-semibold text-sm uppercase tracking-wide text-center">Acciones</th>
+                </tr>
+              </thead>
 
-    <td className="border p-3 text-center">
+              <tbody className="divide-y divide-gray-100">
+                {animales
+                  .filter(
+                    (animal) =>
+                      animal.arete
+                        .toLowerCase()
+                        .includes(busqueda.toLowerCase()) ||
+                      animal.nombre
+                        .toLowerCase()
+                        .includes(busqueda.toLowerCase())
+                  )
+                  .map((animal, index) => (
+                    <tr
+                      key={animal.id}
+                      className="hover:bg-green-50/60 transition-colors"
+                    >
+                      <td className="p-4">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-semibold">
+                          {animal.arete}
+                        </span>
+                      </td>
+                      <td className="p-4 font-medium text-gray-800">{animal.nombre}</td>
+                      <td className="p-4 text-gray-600">{animal.raza}</td>
+                      <td className="p-4 text-gray-800 font-semibold">{animal.peso} kg</td>
 
-<button
-  onClick={() => editarAnimal(index)}
-  className="bg-yellow-500 text-white px-3 py-1 rounded mr-2"
->
-  ✏️ Editar
-</button>
+                      <td className="p-4">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => editarAnimal(index)}
+                            className="inline-flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
+                          >
+                            ✏️ Editar
+                          </button>
 
-<button
-  onClick={() => eliminarAnimal(index)}
-  className="bg-red-600 text-white px-3 py-1 rounded"
->
-  🗑️ Eliminar
-</button>
+                          <button
+                            onClick={() => eliminarAnimal(index)}
+                            className="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
+                          >
+                            🗑️ Eliminar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
 
-</td>
-  </tr>
-))}
+                {animales.filter(
+                  (animal) =>
+                    animal.arete.toLowerCase().includes(busqueda.toLowerCase()) ||
+                    animal.nombre.toLowerCase().includes(busqueda.toLowerCase())
+                ).length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="p-10 text-center text-gray-400">
+                      No se encontraron animales{busqueda ? ` para "${busqueda}"` : ""}.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-
-  </tbody>
-</table>
-
-
-</main>
-);
+        </div>
+      </main>
+    );
 }
