@@ -10,10 +10,15 @@ export default function PesajesPage() {
   const [peso, setPeso] = useState("");
 
   const [animales, setAnimales] = useState<any[]>([]);
+  const [pesajes, setPesajes] = useState<any[]>([]);
+
 
   useEffect(() => {
     cargarAnimales();
+    cargarPesajes();
   }, []);
+
+
   async function guardarPesaje() {
 
     const { error } = await supabase
@@ -30,6 +35,9 @@ export default function PesajesPage() {
       alert(error.message);
       return;
     }
+
+    await cargarPesajes();
+
   
     alert("Pesaje guardado correctamente");
   
@@ -49,6 +57,26 @@ export default function PesajesPage() {
     }
 
     setAnimales(data || []);
+  }
+
+  async function cargarPesajes() {
+    const { data, error } = await supabase
+      .from("Pesaje")
+      .select(`
+        *,
+        animales (
+          nombre,
+          arete
+        )
+      `)
+      .order("fecha", { ascending: false });
+  
+    if (error) {
+      console.log(error);
+      return;
+    }
+  
+    setPesajes(data || []);
   }
 
   return (
@@ -104,6 +132,48 @@ export default function PesajesPage() {
 >
   Guardar Pesaje
 </button>
+
+      </div>
+
+      <div className="mt-8">
+
+        <h2 className="text-2xl font-bold text-green-700 mb-4">
+          Historial de Pesajes
+        </h2>
+
+        <table className="w-full border border-gray-300">
+
+          <thead>
+            <tr className="bg-green-700 text-white">
+              <th className="border p-3">Animal</th>
+              <th className="border p-3">Fecha</th>
+              <th className="border p-3">Peso</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {pesajes.map((pesaje) => (
+              <tr key={pesaje.id}>
+
+                <td className="border p-3">
+                  {pesaje.animales?.arete} - {pesaje.animales?.nombre}
+                </td>
+
+                <td className="border p-3">
+                  {pesaje.fecha}
+                </td>
+
+                <td className="border p-3">
+                  {pesaje.peso} kg
+                </td>
+
+              </tr>
+            ))}
+
+          </tbody>
+
+        </table>
 
       </div>
 
