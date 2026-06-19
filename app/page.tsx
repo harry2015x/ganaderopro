@@ -8,6 +8,7 @@ export default function Home() {
   const [totalAnimales, setTotalAnimales] = useState(0);
   const [totalPesajes, setTotalPesajes] = useState(0);
   const [ultimoPeso, setUltimoPeso] = useState(0);
+  const [pesoPromedio, setPesoPromedio] = useState(0);
   
   useEffect(() => {
     cargarDashboard();
@@ -19,12 +20,16 @@ export default function Home() {
       .from("animales")
       .select("*", { count: "exact", head: true });
 
-      const { data: ultimoRegistro } = await supabase
-  .from("Pesaje")
-  .select("peso")
-  .order("id", { ascending: false })
-  .limit(1)
-  .single();
+      const { data: todosPesajes } = await supabase
+      .from("Pesaje")
+      .select("peso");
+    
+    const { data: ultimoRegistro } = await supabase
+      .from("Pesaje")
+      .select("peso")
+      .order("id", { ascending: false })
+      .limit(1)
+      .single();
 
     const { count: pesajesCount } = await supabase
       .from("Pesaje")
@@ -33,6 +38,17 @@ export default function Home() {
     setTotalAnimales(animalesCount || 0);
     setTotalPesajes(pesajesCount || 0);
     setUltimoPeso(ultimoRegistro?.peso || 0);
+
+    if (todosPesajes && todosPesajes.length > 0) {
+      const suma = todosPesajes.reduce(
+        (acc, item) => acc + item.peso,
+        0
+      );
+    
+      setPesoPromedio(
+        Number((suma / todosPesajes.length).toFixed(1))
+      );
+    }
   }
 
   return (
@@ -45,7 +61,7 @@ export default function Home() {
         Sistema de gestión ganadera para la Orinoquía
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-10">
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-2xl font-bold text-green-700">
@@ -57,11 +73,23 @@ export default function Home() {
           </p>
 
           <p className="text-4xl font-bold mt-4">
-           <p className="text-4xl font-bold mt-4">
   {totalAnimales}
 </p>
-          </p>
         </div>
+
+        <div className="bg-white p-6 rounded-xl shadow">
+  <h2 className="text-2xl font-bold text-purple-700">
+    Promedio
+  </h2>
+
+  <p className="mt-2">
+    Peso promedio
+  </p>
+
+  <p className="text-4xl font-bold mt-4">
+    {pesoPromedio} kg
+  </p>
+</div>
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-2xl font-bold text-blue-700">
@@ -84,15 +112,13 @@ export default function Home() {
           </h2>
 
           <p className="mt-2">
-            Pendientes este mes
+          Total registrados
           </p>
 
           <p className="text-4xl font-bold mt-4">
-          <p className="text-4xl font-bold mt-4">
   {totalPesajes}
 </p>
-          </p>
-        </div>
+ </div>
 
       </div>
     </main>
