@@ -1,18 +1,36 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
 export default function Home() {
 
+  const router = useRouter();
+const [cargando, setCargando] = useState(true);
   const [totalAnimales, setTotalAnimales] = useState(0);
   const [totalPesajes, setTotalPesajes] = useState(0);
   const [ultimoPeso, setUltimoPeso] = useState(0);
   const [pesoPromedio, setPesoPromedio] = useState(0);
   
   useEffect(() => {
-    cargarDashboard();
+    verificarSesion();
   }, []);
+  
+  async function verificarSesion() {
+  
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+  
+    if (!session) {
+      router.push("/login");
+      return;
+    }
+  
+    cargarDashboard();
+    setCargando(false);
+  }
 
   async function cargarDashboard() {
 
@@ -49,6 +67,16 @@ export default function Home() {
         Number((suma / todosPesajes.length).toFixed(1))
       );
     }
+  }
+
+  if (cargando) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <h1 className="text-2xl font-bold text-green-700">
+          Cargando...
+        </h1>
+      </div>
+    );
   }
 
   return (
