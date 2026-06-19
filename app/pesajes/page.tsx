@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
+import Link from "next/link";
 
 export default function PesajesPage() {
   const [animalId, setAnimalId] = useState("");
@@ -174,161 +175,242 @@ const pesoMinimo =
   }
 
   return (
-    <main className="p-10">
-      <h1 className="text-4xl font-bold text-green-700 mb-6">
-        Control de Pesajes
-      </h1>
+    <main className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-6 md:p-10">
+      <div className="max-w-6xl mx-auto">
 
-      <div className="bg-white p-6 rounded-lg shadow border max-w-5xl">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <select
-            value={animalId}
-            onChange={(e) => setAnimalId(e.target.value)}
-            className="border p-3 rounded"
-          >
-            <option value="">
-              Seleccione Animal
-            </option>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-green-700 hover:text-green-900 font-medium mb-6 transition-colors"
+        >
+          ← Volver al Dashboard
+        </Link>
 
-            {animales.map((animal) => (
-              <option
-                key={animal.id}
-                value={animal.id}
-              >
-                {animal.arete} - {animal.nombre}
-              </option>
-            ))}
-          </select>
-
-          <input
-            type="date"
-            value={fecha}
-            onChange={(e) => setFecha(e.target.value)}
-            className="border p-3 rounded"
-          />
-
-          <input
-            type="number"
-            placeholder="Peso Kg"
-            value={peso}
-            onChange={(e) => setPeso(e.target.value)}
-            className="border p-3 rounded"
-          />
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-green-800 to-emerald-600 bg-clip-text text-transparent flex items-center gap-3">
+            ⚖️ Control de Pesajes
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Registra y monitorea el peso de tus animales
+          </p>
         </div>
 
-        <button
-          onClick={guardarPesaje}
-          className="mt-4 bg-green-700 text-white px-6 py-3 rounded"
-        >
-          Guardar Pesaje
-        </button>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
+        {/* Formulario */}
+        <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg ring-1 ring-gray-100">
+          <h2 className="text-lg font-bold text-green-700 mb-4 flex items-center gap-2">
+            {editandoId ? "✏️ Editar Pesaje" : "📝 Nuevo Pesaje"}
+          </h2>
 
-<div className="bg-white p-5 rounded-lg shadow border">
-  <h3 className="text-green-700 font-bold">
-    Total Pesajes
-  </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                Animal
+              </label>
+              <select
+                value={animalId}
+                onChange={(e) => setAnimalId(e.target.value)}
+                className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              >
+                <option value="">
+                  Seleccione Animal
+                </option>
 
-  <p className="text-3xl font-bold mt-2">
-    {totalPesajes}
-  </p>
-</div>
+                {animales.map((animal) => (
+                  <option
+                    key={animal.id}
+                    value={animal.id}
+                  >
+                    {animal.arete} - {animal.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-<div className="bg-white p-5 rounded-lg shadow border">
-  <h3 className="text-blue-700 font-bold">
-    Peso Promedio
-  </h3>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                Fecha
+              </label>
+              <input
+                type="date"
+                value={fecha}
+                onChange={(e) => setFecha(e.target.value)}
+                className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              />
+            </div>
 
-  <p className="text-3xl font-bold mt-2">
-    {pesoPromedio} kg
-  </p>
-</div>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                Peso (Kg)
+              </label>
+              <input
+                type="number"
+                placeholder="Ej: 320"
+                value={peso}
+                onChange={(e) => setPeso(e.target.value)}
+                className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              />
+            </div>
+          </div>
 
-<div className="bg-white p-5 rounded-lg shadow border">
-  <h3 className="text-orange-600 font-bold">
-    Peso Máximo
-  </h3>
+          <div className="flex gap-3 mt-5">
+            <button
+              onClick={guardarPesaje}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md shadow-green-900/20 hover:shadow-lg hover:-translate-y-0.5 transition-all"
+            >
+              {editandoId ? "💾 Actualizar Pesaje" : "➕ Guardar Pesaje"}
+            </button>
 
-  <p className="text-3xl font-bold mt-2">
-    {pesoMaximo} kg
-  </p>
-</div>
-
-<div className="bg-white p-5 rounded-lg shadow border">
-  <h3 className="text-red-600 font-bold">
-    Peso Mínimo
-  </h3>
-
-  <p className="text-3xl font-bold mt-2">
-    {pesoMinimo} kg
-  </p>
-</div>
-
-</div>
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold text-green-700 mb-4">
-          Historial de Pesajes
-        </h2>
-
-        <table className="w-full border border-gray-300">
-          <thead>
-            <tr className="bg-green-700 text-white">
-            <th className="border p-3">Animal</th>
-              <th className="border p-3">Fecha</th>
-              <th className="border p-3">Peso</th>
-              <th className="border p-3">Editar</th>
-<th className="border p-3">Eliminar</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {pesajes.map((pesaje) => (
-              <tr key={pesaje.id}>
-               <td className="border p-3">
-  {pesaje.animales?.arete} - {pesaje.animales?.nombre}
-</td>
-
-                <td className="border p-3">
-                  {pesaje.fecha}
-                </td>
-
-                <td className="border p-3">
-                  {pesaje.peso} kg
-                </td>
-
-                <td className="border p-3 text-center">
-  <button
-    onClick={() => editarPesaje(pesaje)}
-    className="bg-yellow-500 text-white px-3 py-1 rounded"
-  >
-    ✏️
-  </button>
-</td>
-
-<td className="border p-3 text-center">
-  <button
-    onClick={() => eliminarPesaje(pesaje.id)}
-    className="bg-red-600 text-white px-3 py-1 rounded"
-  >
-    🗑️
-  </button>
-</td>
-              </tr>
-            ))}
-
-            {pesajes.length === 0 && (
-              <tr>
-                <td
-                  colSpan={3}
-                  className="border p-3 text-center"
-                >
-                  No hay pesajes registrados
-                </td>
-              </tr>
+            {editandoId && (
+              <button
+                onClick={() => {
+                  setAnimalId("");
+                  setFecha("");
+                  setPeso("");
+                  setEditandoId(null);
+                }}
+                className="px-6 py-3 rounded-xl font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
+              >
+                Cancelar
+              </button>
             )}
-          </tbody>
-        </table>
+          </div>
+        </div>
+
+        {/* Tarjetas de estadísticas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+
+          <div className="group relative bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-md shadow-gray-200/50 ring-1 ring-gray-100 hover:shadow-xl hover:shadow-green-900/10 hover:-translate-y-1 transition-all duration-300">
+            <div className="absolute top-0 left-0 h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-green-500 to-emerald-500" />
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-green-700">
+                Total Pesajes
+              </h3>
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-700 text-lg">
+                📋
+              </span>
+            </div>
+            <p className="text-4xl font-bold mt-3 text-gray-800">
+              {totalPesajes}
+            </p>
+          </div>
+
+          <div className="group relative bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-md shadow-gray-200/50 ring-1 ring-gray-100 hover:shadow-xl hover:shadow-blue-900/10 hover:-translate-y-1 transition-all duration-300">
+            <div className="absolute top-0 left-0 h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-blue-500 to-cyan-500" />
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-blue-700">
+                Peso Promedio
+              </h3>
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700 text-lg">
+                📊
+              </span>
+            </div>
+            <p className="text-4xl font-bold mt-3 text-gray-800">
+              {pesoPromedio} <span className="text-xl font-semibold text-gray-400">kg</span>
+            </p>
+          </div>
+
+          <div className="group relative bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-md shadow-gray-200/50 ring-1 ring-gray-100 hover:shadow-xl hover:shadow-orange-900/10 hover:-translate-y-1 transition-all duration-300">
+            <div className="absolute top-0 left-0 h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-orange-500 to-amber-500" />
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-orange-700">
+                Peso Máximo
+              </h3>
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-orange-700 text-lg">
+                📈
+              </span>
+            </div>
+            <p className="text-4xl font-bold mt-3 text-gray-800">
+              {pesoMaximo} <span className="text-xl font-semibold text-gray-400">kg</span>
+            </p>
+          </div>
+
+          <div className="group relative bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-md shadow-gray-200/50 ring-1 ring-gray-100 hover:shadow-xl hover:shadow-red-900/10 hover:-translate-y-1 transition-all duration-300">
+            <div className="absolute top-0 left-0 h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-red-500 to-rose-500" />
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-red-700">
+                Peso Mínimo
+              </h3>
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-100 text-red-700 text-lg">
+                📉
+              </span>
+            </div>
+            <p className="text-4xl font-bold mt-3 text-gray-800">
+              {pesoMinimo} <span className="text-xl font-semibold text-gray-400">kg</span>
+            </p>
+          </div>
+
+        </div>
+
+        {/* Historial */}
+        <div className="mt-10">
+          <h2 className="text-2xl font-bold text-green-700 mb-4 flex items-center gap-2">
+            📚 Historial de Pesajes
+          </h2>
+
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md ring-1 ring-gray-100 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-gradient-to-r from-green-700 to-emerald-700 text-white">
+                    <th className="p-4 font-semibold text-sm uppercase tracking-wide">Animal</th>
+                    <th className="p-4 font-semibold text-sm uppercase tracking-wide">Fecha</th>
+                    <th className="p-4 font-semibold text-sm uppercase tracking-wide">Peso</th>
+                    <th className="p-4 font-semibold text-sm uppercase tracking-wide text-center">Acciones</th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-100">
+                  {pesajes.map((pesaje) => (
+                    <tr key={pesaje.id} className="hover:bg-green-50/60 transition-colors">
+                      <td className="p-4">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-semibold">
+                          {pesaje.animales?.arete} - {pesaje.animales?.nombre}
+                        </span>
+                      </td>
+
+                      <td className="p-4 text-gray-600">
+                        📅 {pesaje.fecha}
+                      </td>
+
+                      <td className="p-4 text-gray-800 font-semibold">
+                        {pesaje.peso} kg
+                      </td>
+
+                      <td className="p-4">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => editarPesaje(pesaje)}
+                            className="inline-flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
+                          >
+                            ✏️ Editar
+                          </button>
+
+                          <button
+                            onClick={() => eliminarPesaje(pesaje.id)}
+                            className="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
+                          >
+                            🗑️ Eliminar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+
+                  {pesajes.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="p-10 text-center text-gray-400"
+                      >
+                        ⚖️ No hay pesajes registrados
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </div>
     </main>
   );
