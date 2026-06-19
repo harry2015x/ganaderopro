@@ -14,6 +14,32 @@ export default function PesajesPage() {
   const [animales, setAnimales] = useState<any[]>([]);
   const [pesajes, setPesajes] = useState<any[]>([]);
 
+  const totalPesajes = pesajes.length;
+
+const pesoPromedio =
+  pesajes.length > 0
+    ? (
+        pesajes.reduce(
+          (sum, p) => sum + Number(p.peso),
+          0
+        ) / pesajes.length
+      ).toFixed(1)
+    : 0;
+
+const pesoMaximo =
+  pesajes.length > 0
+    ? Math.max(
+        ...pesajes.map((p) => Number(p.peso))
+      )
+    : 0;
+
+const pesoMinimo =
+  pesajes.length > 0
+    ? Math.min(
+        ...pesajes.map((p) => Number(p.peso))
+      )
+    : 0;
+
   console.log("ESTADO ANIMALES:", animales);
 
   useEffect(() => {
@@ -197,7 +223,49 @@ export default function PesajesPage() {
           Guardar Pesaje
         </button>
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
 
+<div className="bg-white p-5 rounded-lg shadow border">
+  <h3 className="text-green-700 font-bold">
+    Total Pesajes
+  </h3>
+
+  <p className="text-3xl font-bold mt-2">
+    {totalPesajes}
+  </p>
+</div>
+
+<div className="bg-white p-5 rounded-lg shadow border">
+  <h3 className="text-blue-700 font-bold">
+    Peso Promedio
+  </h3>
+
+  <p className="text-3xl font-bold mt-2">
+    {pesoPromedio} kg
+  </p>
+</div>
+
+<div className="bg-white p-5 rounded-lg shadow border">
+  <h3 className="text-orange-600 font-bold">
+    Peso Máximo
+  </h3>
+
+  <p className="text-3xl font-bold mt-2">
+    {pesoMaximo} kg
+  </p>
+</div>
+
+<div className="bg-white p-5 rounded-lg shadow border">
+  <h3 className="text-red-600 font-bold">
+    Peso Mínimo
+  </h3>
+
+  <p className="text-3xl font-bold mt-2">
+    {pesoMinimo} kg
+  </p>
+</div>
+
+</div>
       <div className="mt-8">
         <h2 className="text-2xl font-bold text-green-700 mb-4">
           Historial de Pesajes
