@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
+import AuthGuard from "../../components/AuthGuard";
+
 
 export default function GanadoPage() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -135,6 +137,7 @@ async function eliminarAnimal(index: number) {
   }
 
     return (
+      <AuthGuard>
       <main className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-6 md:p-10">
         <div className="max-w-6xl mx-auto">
 
@@ -355,5 +358,6 @@ async function eliminarAnimal(index: number) {
 
         </div>
       </main>
+      </AuthGuard>
     );
 }
