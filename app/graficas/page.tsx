@@ -73,6 +73,29 @@ export default function GraficasPage() {
     return Array.from(set);
   }, [datos]);
 
+  // Estadísticas generales para la tarjeta de resumen.
+  // Se calculan a partir de los mismos `datos` ya cargados, sin nuevas consultas.
+  const resumen = useMemo(() => {
+    if (datos.length === 0) {
+      return {
+        totalAnimales: 0,
+        pesoPromedio: 0,
+        pesoMaximo: 0,
+        pesoMinimo: 0,
+      };
+    }
+
+    const pesos = datos.map((d) => Number(d.peso));
+    const suma = pesos.reduce((acc, p) => acc + p, 0);
+
+    return {
+      totalAnimales: nombresAnimales.length,
+      pesoPromedio: Number((suma / pesos.length).toFixed(1)),
+      pesoMaximo: Math.max(...pesos),
+      pesoMinimo: Math.min(...pesos),
+    };
+  }, [datos, nombresAnimales]);
+
   // Pivoteo de los datos: una fila por fecha, una columna por animal.
   // No cambia el origen de los datos, solo la forma en que se grafican.
   const datosPivot = useMemo(() => {
@@ -150,6 +173,73 @@ export default function GraficasPage() {
             Tendencia de peso por animal a lo largo del tiempo
           </p>
         </div>
+
+        {/* Tarjetas de resumen */}
+        {datos.length > 0 && (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+            <div className="group relative bg-white/80 backdrop-blur-sm p-5 rounded-2xl shadow-md shadow-gray-200/50 ring-1 ring-gray-100 hover:shadow-xl hover:shadow-green-900/10 hover:-translate-y-1 transition-all duration-300">
+              <div className="absolute top-0 left-0 h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-green-500 to-emerald-500" />
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-green-700">
+                  Animales con registros
+                </h3>
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-100 text-green-700 text-base shrink-0">
+                  🐄
+                </span>
+              </div>
+              <p className="text-3xl font-bold mt-3 text-gray-800">
+                {resumen.totalAnimales}
+              </p>
+            </div>
+
+            <div className="group relative bg-white/80 backdrop-blur-sm p-5 rounded-2xl shadow-md shadow-gray-200/50 ring-1 ring-gray-100 hover:shadow-xl hover:shadow-blue-900/10 hover:-translate-y-1 transition-all duration-300">
+              <div className="absolute top-0 left-0 h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-blue-500 to-cyan-500" />
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-blue-700">
+                  Peso promedio
+                </h3>
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-blue-700 text-base shrink-0">
+                  ⚖️
+                </span>
+              </div>
+              <p className="text-3xl font-bold mt-3 text-gray-800">
+                {resumen.pesoPromedio} <span className="text-lg font-semibold text-gray-400">kg</span>
+              </p>
+            </div>
+
+            <div className="group relative bg-white/80 backdrop-blur-sm p-5 rounded-2xl shadow-md shadow-gray-200/50 ring-1 ring-gray-100 hover:shadow-xl hover:shadow-orange-900/10 hover:-translate-y-1 transition-all duration-300">
+              <div className="absolute top-0 left-0 h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-orange-500 to-amber-500" />
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-orange-700">
+                  Peso máximo
+                </h3>
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-100 text-orange-700 text-base shrink-0">
+                  📈
+                </span>
+              </div>
+              <p className="text-3xl font-bold mt-3 text-gray-800">
+                {resumen.pesoMaximo} <span className="text-lg font-semibold text-gray-400">kg</span>
+              </p>
+            </div>
+
+            <div className="group relative bg-white/80 backdrop-blur-sm p-5 rounded-2xl shadow-md shadow-gray-200/50 ring-1 ring-gray-100 hover:shadow-xl hover:shadow-red-900/10 hover:-translate-y-1 transition-all duration-300">
+              <div className="absolute top-0 left-0 h-1.5 w-full rounded-t-2xl bg-gradient-to-r from-red-500 to-rose-500" />
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-red-700">
+                  Peso mínimo
+                </h3>
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-100 text-red-700 text-base shrink-0">
+                  📉
+                </span>
+              </div>
+              <p className="text-3xl font-bold mt-3 text-gray-800">
+                {resumen.pesoMinimo} <span className="text-lg font-semibold text-gray-400">kg</span>
+              </p>
+            </div>
+
+          </div>
+        )}
 
         <div className="bg-white/90 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-lg ring-1 ring-gray-100">
 
