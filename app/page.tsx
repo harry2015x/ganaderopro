@@ -1,4 +1,31 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
+
 export default function Home() {
+
+  const [totalAnimales, setTotalAnimales] = useState(0);
+  const [totalPesajes, setTotalPesajes] = useState(0);
+  
+  useEffect(() => {
+    cargarDashboard();
+  }, []);
+
+  async function cargarDashboard() {
+
+    const { count: animalesCount } = await supabase
+      .from("animales")
+      .select("*", { count: "exact", head: true });
+
+    const { count: pesajesCount } = await supabase
+      .from("Pesaje")
+      .select("*", { count: "exact", head: true });
+
+    setTotalAnimales(animalesCount || 0);
+    setTotalPesajes(pesajesCount || 0);
+  }
+
   return (
     <main className="min-h-screen bg-green-50 p-10">
       <h1 className="text-5xl font-bold text-green-800">
@@ -21,7 +48,9 @@ export default function Home() {
           </p>
 
           <p className="text-4xl font-bold mt-4">
-            250
+           <p className="text-4xl font-bold mt-4">
+  {totalAnimales}
+</p>
           </p>
         </div>
 
@@ -49,7 +78,9 @@ export default function Home() {
           </p>
 
           <p className="text-4xl font-bold mt-4">
-            32
+          <p className="text-4xl font-bold mt-4">
+  {totalPesajes}
+</p>
           </p>
         </div>
 
