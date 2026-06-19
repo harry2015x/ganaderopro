@@ -11,6 +11,8 @@ export default function PesajesPage() {
   const [animales, setAnimales] = useState<any[]>([]);
   const [pesajes, setPesajes] = useState<any[]>([]);
 
+  console.log("ESTADO ANIMALES:", animales);
+
   useEffect(() => {
     cargarAnimales();
     cargarPesajes();
