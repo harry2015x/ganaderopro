@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
+import AuthGuard from "../components/AuthGuard";
 
 export default function Home() {
 
@@ -80,6 +81,7 @@ const [cargando, setCargando] = useState(true);
   }
 
   return (
+    <AuthGuard>
     <main className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-6 md:p-10">
       <div className="max-w-7xl mx-auto">
 
@@ -188,6 +190,8 @@ const [cargando, setCargando] = useState(true);
 
         </div>
       </div>
-    </main>
-  );
+      </main>
+  </AuthGuard>
+);
+
 }
