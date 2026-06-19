@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
+import AuthGuard from "../../components/AuthGuard";
 import Link from "next/link";
 
 export default function PesajesPage() {
@@ -175,6 +176,7 @@ const pesoMinimo =
   }
 
   return (
+    <AuthGuard>
     <main className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-6 md:p-10">
       <div className="max-w-6xl mx-auto">
 
@@ -413,5 +415,6 @@ const pesoMinimo =
 
       </div>
     </main>
+    </AuthGuard>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabase";
+import AuthGuard from "../../components/AuthGuard";
 import Link from "next/link";
 
 import {
@@ -267,6 +268,7 @@ export default function GraficasPage() {
   }
 
   return (
+    <AuthGuard>
     <main className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-6 md:p-10">
       <div className="max-w-7xl mx-auto">
 
@@ -670,5 +672,6 @@ export default function GraficasPage() {
 
       </div>
     </main>
+    </AuthGuard>
   );
 }
