@@ -36,17 +36,27 @@ export default function PesajesPage() {
   async function cargarPesajes() {
     const { data, error } = await supabase
       .from("Pesaje")
-      .select("*")
+      .select(`
+        id,
+        fecha,
+        peso,
+        animal_id,
+        animales!Pesaje_animal_id_fkey (
+          id,
+          nombre,
+          arete
+        )
+      `)
       .order("fecha", { ascending: false });
-
-    console.log("PESAJES:", data);
-    console.log("ERROR PESAJES:", error);
-
+  
+    console.log(data);
+    console.log(error);
+  
     if (error) {
       console.log(error);
       return;
     }
-
+  
     setPesajes(data || []);
   }
 
@@ -139,7 +149,7 @@ export default function PesajesPage() {
         <table className="w-full border border-gray-300">
           <thead>
             <tr className="bg-green-700 text-white">
-              <th className="border p-3">ID Animal</th>
+            <th className="border p-3">Animal</th>
               <th className="border p-3">Fecha</th>
               <th className="border p-3">Peso</th>
             </tr>
@@ -148,9 +158,9 @@ export default function PesajesPage() {
           <tbody>
             {pesajes.map((pesaje) => (
               <tr key={pesaje.id}>
-                <td className="border p-3">
-                  {pesaje.animal_id}
-                </td>
+               <td className="border p-3">
+  {pesaje.animales?.arete} - {pesaje.animales?.nombre}
+</td>
 
                 <td className="border p-3">
                   {pesaje.fecha}
