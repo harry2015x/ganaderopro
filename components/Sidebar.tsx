@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { supabase } from "../lib/supabase";
 
 const links = [
   { href: "/", label: "Dashboard", icon: "📊" },
@@ -15,6 +16,11 @@ const links = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+
+  async function cerrarSesion() {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  }
 
   return (
     <aside className="w-64 min-h-screen bg-gradient-to-b from-green-900 via-green-800 to-emerald-900 text-white p-6 flex flex-col shadow-xl">
@@ -87,12 +93,21 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="mt-auto pt-6 border-t border-white/10">
-        <div className="flex items-center gap-2.5 px-1 text-green-200/70 text-xs">
-          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-          Sistema activo
-        </div>
-      </div>
+<div className="mt-auto pt-6 border-t border-white/10">
+
+<button
+  onClick={cerrarSesion}
+  className="w-full mb-4 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 rounded-xl transition"
+>
+  🚪 Cerrar sesión
+</button>
+
+<div className="flex items-center gap-2.5 px-1 text-green-200/70 text-xs">
+  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+  Sistema activo
+</div>
+
+</div>
     </aside>
   );
 }
