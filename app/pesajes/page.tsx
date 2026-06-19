@@ -51,6 +51,9 @@ export default function PesajesPage() {
       .select("*")
       .order("nombre");
 
+      console.log("ANIMALES:", data);
+  console.log("ERROR ANIMALES:", error);
+
     if (error) {
       console.log(error);
       return;
@@ -70,6 +73,9 @@ export default function PesajesPage() {
         )
       `)
       .order("fecha", { ascending: false });
+
+      console.log("PESAJES:", data);
+  console.log("ERROR PESAJES:", error);
   
     if (error) {
       console.log(error);
