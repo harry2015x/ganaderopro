@@ -25,6 +25,10 @@ export default function Sidebar() {
   ⚖️ Pesajes
 </Link>
 
+<Link href="/graficas">
+  📈 Gráficas
+</Link>
+
         <Link href="#">
           ❤️ Reproducción
         </Link>
