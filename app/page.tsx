@@ -7,6 +7,7 @@ export default function Home() {
 
   const [totalAnimales, setTotalAnimales] = useState(0);
   const [totalPesajes, setTotalPesajes] = useState(0);
+  const [ultimoPeso, setUltimoPeso] = useState(0);
   
   useEffect(() => {
     cargarDashboard();
@@ -18,12 +19,20 @@ export default function Home() {
       .from("animales")
       .select("*", { count: "exact", head: true });
 
+      const { data: ultimoRegistro } = await supabase
+  .from("Pesaje")
+  .select("peso")
+  .order("id", { ascending: false })
+  .limit(1)
+  .single();
+
     const { count: pesajesCount } = await supabase
       .from("Pesaje")
       .select("*", { count: "exact", head: true });
 
     setTotalAnimales(animalesCount || 0);
     setTotalPesajes(pesajesCount || 0);
+    setUltimoPeso(ultimoRegistro?.peso || 0);
   }
 
   return (
@@ -56,15 +65,16 @@ export default function Home() {
 
         <div className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-2xl font-bold text-blue-700">
-            Vacunación
+          Último Peso
+
           </h2>
 
           <p className="mt-2">
-            Próximas vacunas
+          Último registro
           </p>
 
           <p className="text-4xl font-bold mt-4">
-            18
+          {ultimoPeso} kg
           </p>
         </div>
 
