@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
 const links = [
+  
   { href: "/", label: "Dashboard", icon: "📊" },
   { href: "/ganado", label: "Ganado", icon: "🐂" },
   { href: "#", label: "Vacunación", icon: "💉" },
@@ -12,6 +13,7 @@ const links = [
   { href: "/graficas", label: "Gráficas", icon: "📈" },
   { href: "#", label: "Reproducción", icon: "❤️" },
   { href: "#", label: "Costos", icon: "💰" },
+  { href: "/usuarios", label: "Usuarios", icon: "👤" },
 ];
 
 export default function Sidebar() {
