@@ -1,15 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
+import { obtenerRolUsuario } from "../../lib/auth";
 import AuthGuard from "../../components/AuthGuard";
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<any[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
-    cargarUsuarios();
+    verificarAcceso();
   }, []);
+
+  async function verificarAcceso() {
+    const rol = await obtenerRolUsuario();
+  
+    if (rol !== "admin") {
+      router.push("/");
+      return;
+    }
+  
+    cargarUsuarios();
+  }
 
   async function cargarUsuarios() {
     const { data, error } = await supabase
