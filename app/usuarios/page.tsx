@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "../../lib/supabase";
+import { registrarAuditoria } from "../../lib/auditoria";
 import { obtenerRolUsuario } from "../../lib/auth";
 import AuthGuard from "../../components/AuthGuard";
 
@@ -55,11 +56,24 @@ export default function UsuariosPage() {
       .update({ activo: !activoActual })
       .eq("id", id);
 
-    if (error) {
-      alert(error.message);
-      return;
-    }
-    await cargarUsuarios();
+      if (error) {
+        alert(error.message);
+        return;
+      }
+      
+      await registrarAuditoria(
+        id,
+        "Administrador",
+        activoActual
+          ? "INACTIVAR_USUARIO"
+          : "ACTIVAR_USUARIO",
+        "USUARIOS",
+        activoActual
+          ? "Usuario desactivado"
+          : "Usuario activado"
+      );
+      
+      await cargarUsuarios();
   }
 
   async function cambiarRol(
@@ -76,12 +90,20 @@ export default function UsuariosPage() {
       })
       .eq("id", id);
   
-    if (error) {
-      alert(error.message);
-      return;
-    }
-  
-    await cargarUsuarios();
+      if (error) {
+        alert(error.message);
+        return;
+      }
+      
+      await registrarAuditoria(
+        id,
+        "Administrador",
+        "CAMBIO_ROL",
+        "USUARIOS",
+        `Rol cambiado de ${rolActual} a ${nuevoRol}`
+      );
+      
+      await cargarUsuarios();
   }
 
   async function guardarUsuario() {
