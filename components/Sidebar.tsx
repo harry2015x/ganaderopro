@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { supabase } from "../lib/supabase";
+import { useEffect, useState } from "react";
+import { obtenerRolUsuario } from "../lib/auth";
 
 const links = [
   
@@ -18,8 +20,17 @@ const links = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [rol, setRol] = useState<string | null>(null);
 
-  async function cerrarSesion() {
+useEffect(() => {
+  cargarRol();
+}, []);
+
+async function cargarRol() {
+  const rolUsuario = await obtenerRolUsuario();
+  setRol(rolUsuario);
+}
+async function cerrarSesion() {
     await supabase.auth.signOut();
     window.location.href = "/login";
   }
@@ -41,6 +52,10 @@ export default function Sidebar() {
           </p>
         </div>
       </div>
+
+      <div className="mb-4 text-xs text-green-300">
+  Rol: {rol}
+</div>
 
       {/* Navegación */}
       <nav className="flex flex-col gap-1">
