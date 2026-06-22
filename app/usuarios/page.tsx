@@ -62,6 +62,28 @@ export default function UsuariosPage() {
     await cargarUsuarios();
   }
 
+  async function cambiarRol(
+    id: string,
+    rolActual: string,
+    nuevoRol: string
+  ) {
+    if (rolActual === "admin") return;
+  
+    const { error } = await supabase
+      .from("usuarios")
+      .update({
+        rol: nuevoRol,
+      })
+      .eq("id", id);
+  
+    if (error) {
+      alert(error.message);
+      return;
+    }
+  
+    await cargarUsuarios();
+  }
+
   async function guardarUsuario() {
     if (!nombre || !email || !password) {
       alert("Todos los campos son obligatorios");
@@ -245,7 +267,8 @@ export default function UsuariosPage() {
                     <th className="p-4 font-semibold text-sm uppercase tracking-wide">Correo</th>
                     <th className="p-4 font-semibold text-sm uppercase tracking-wide">Rol</th>
                     <th className="p-4 font-semibold text-sm uppercase tracking-wide">Estado</th>
-                  </tr>
+                   <th className="p-4 font-semibold text-sm uppercase tracking-wide">Acciones</th>
+          </tr>
                 </thead>
 
                 <tbody className="divide-y divide-gray-100">
@@ -341,13 +364,44 @@ export default function UsuariosPage() {
                             </div>
                           )}
                         </td>
+
+                        {/* Acciones */}
+<td className="p-4">
+  {esAdmin ? (
+    <span className="text-[10px] uppercase tracking-wide font-semibold bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
+      PROTEGIDO
+    </span>
+  ) : (
+    <select
+      value={usuario.rol}
+      onChange={(e) =>
+        cambiarRol(
+          usuario.id,
+          usuario.rol,
+          e.target.value
+        )
+      }
+      className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white"
+    >
+      <option value="operador">
+        Operador
+      </option>
+
+      <option value="visualizador">
+        Visualizador
+      </option>
+    </select>
+  )}
+</td>
+
+
                       </tr>
                     );
                   })}
 
                   {usuarios.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="p-10 text-center text-gray-400">
+                      <td colSpan={5} className="p-10 text-center text-gray-400">
                         No hay usuarios registrados.
                       </td>
                     </tr>
