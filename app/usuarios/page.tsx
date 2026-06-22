@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "../../lib/supabase";
 import { obtenerRolUsuario } from "../../lib/auth";
 import AuthGuard from "../../components/AuthGuard";
@@ -9,11 +10,12 @@ import AuthGuard from "../../components/AuthGuard";
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<any[]>([]);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [cargando, setCargando] = useState(true);
 
-const [nombre, setNombre] = useState("");
-const [email, setEmail] = useState("");
-const [rol, setRol] = useState("operador");
-const [password, setPassword] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
+  const [rolNuevo, setRolNuevo] = useState("operador");
+  const [password, setPassword] = useState("");
 
   const router = useRouter();
 
@@ -23,56 +25,14 @@ const [password, setPassword] = useState("");
 
   async function verificarAcceso() {
     const rol = await obtenerRolUsuario();
-  
+
     if (rol !== "admin") {
       router.push("/");
       return;
     }
-  
-    cargarUsuarios();
-  }
 
-  async function guardarUsuario() {
-    // Crear usuario en Supabase Auth
-    const { data, error: authError } =
-      await supabase.auth.signUp({
-        email,
-        password,
-      });
-  
-    if (authError) {
-      alert(authError.message);
-      return;
-    }
-  
-    // Guardar datos adicionales
-    const { error } = await supabase
-      .from("usuarios")
-      .insert([
-        {
-          id: data.user?.id,
-          nombre,
-          email,
-          rol,
-          activo: true,
-        },
-      ]);
-  
-    if (error) {
-      alert(error.message);
-      return;
-    }
-  
-    alert("Usuario creado correctamente");
-  
-    setNombre("");
-    setEmail("");
-    setPassword("");
-    setRol("operador");
-  
-    setMostrarFormulario(false);
-  
-    cargarUsuarios();
+    await cargarUsuarios();
+    setCargando(false);
   }
 
   async function cargarUsuarios() {
@@ -89,119 +49,236 @@ const [password, setPassword] = useState("");
     setUsuarios(data || []);
   }
 
+  async function guardarUsuario() {
+    if (!nombre || !email || !password) {
+      alert("Todos los campos son obligatorios");
+      return;
+    }
+
+    if (password.length < 6) {
+      alert("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+
+    const { data, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (authError) {
+      alert(authError.message);
+      return;
+    }
+
+    const { error } = await supabase.from("usuarios").insert([
+      {
+        id: data.user?.id,
+        nombre,
+        email,
+        rol: rolNuevo,
+        activo: true,
+      },
+    ]);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert("Usuario creado correctamente");
+
+    setNombre("");
+    setEmail("");
+    setPassword("");
+    setRolNuevo("operador");
+    setMostrarFormulario(false);
+
+    await cargarUsuarios();
+  }
+
+  const rolBadge: Record<string, string> = {
+    admin:        "bg-purple-100 text-purple-800",
+    operador:     "bg-blue-100   text-blue-800",
+    visualizador: "bg-gray-100   text-gray-700",
+  };
+
+  if (cargando) {
+    return (
+      <AuthGuard>
+        <main className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
+          <p className="text-green-700 font-semibold animate-pulse">Verificando acceso…</p>
+        </main>
+      </AuthGuard>
+    );
+  }
+
   return (
     <AuthGuard>
       <main className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-6 md:p-10">
         <div className="max-w-6xl mx-auto">
 
-        <div className="flex justify-between items-center mb-6">
-  <h1 className="text-4xl font-bold text-green-700">
-    Administración de Usuarios
-  </h1>
+          {/* Volver */}
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-green-700 hover:text-green-900 font-medium mb-6 transition-colors"
+          >
+            ← Volver al Dashboard
+          </Link>
 
-  <button
-    onClick={() => setMostrarFormulario(true)}
-    className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl font-semibold"
-  >
-    ➕ Nuevo Usuario
-  </button>
-</div>
+          {/* Encabezado */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-green-800 to-emerald-600 bg-clip-text text-transparent">
+                Administración de Usuarios
+              </h1>
+              <p className="text-gray-500 mt-1">
+                {usuarios.length}{" "}
+                {usuarios.length === 1 ? "usuario registrado" : "usuarios registrados"}
+              </p>
+            </div>
 
-{mostrarFormulario && (
-  <div className="bg-white p-6 rounded-2xl shadow-md mb-6">
+            <button
+              onClick={() => setMostrarFormulario(!mostrarFormulario)}
+              className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-green-900/20 hover:shadow-lg hover:-translate-y-0.5 transition-all"
+            >
+              ➕ Nuevo Usuario
+            </button>
+          </div>
 
-    <h2 className="text-xl font-bold text-green-700 mb-4">
-      Nuevo Usuario
-    </h2>
+          {/* Formulario */}
+          {mostrarFormulario && (
+            <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg ring-1 ring-gray-100 mb-8">
+              <h2 className="text-xl font-bold text-green-700 mb-5 flex items-center gap-2">
+                📝 Nuevo Usuario
+              </h2>
 
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                    Nombre
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Juan Pérez"
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  />
+                </div>
 
-      <input
-        type="text"
-        placeholder="Nombre"
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
-        className="border p-3 rounded-xl"
-      />
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                    Correo electrónico
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="Ej: juan@correo.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  />
+                </div>
 
-      <input
-        type="email"
-        placeholder="Correo"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="border p-3 rounded-xl"
-      />
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                    Contraseña
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Mínimo 6 caracteres"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  />
+                </div>
 
-<input
-  type="password"
-  placeholder="Contraseña"
-  value={password}
-  onChange={(e) => setPassword(e.target.value)}
-  className="border p-3 rounded-xl"
-/>
-
-      <select
-        value={rol}
-        onChange={(e) => setRol(e.target.value)}
-        className="border p-3 rounded-xl"
-      >
-        <option value="admin">Admin</option>
-        <option value="operador">Operador</option>
-      </select>
-
-    </div>
-
-    <div className="flex gap-3 mt-4">
-
-      <button
-        onClick={guardarUsuario}
-        className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl"
-      >
-        Guardar
-      </button>
-
-      <button
-        onClick={() => setMostrarFormulario(false)}
-        className="bg-gray-300 hover:bg-gray-400 px-5 py-2 rounded-xl"
-      >
-        Cancelar
-      </button>
-
-    </div>
-
-  </div>
-)}
-
-          <div className="bg-white rounded-2xl shadow-md overflow-hidden">
-
-            <table className="w-full">
-              <thead>
-                <tr className="bg-green-700 text-white">
-                  <th className="p-4 text-left">Nombre</th>
-                  <th className="p-4 text-left">Correo</th>
-                  <th className="p-4 text-left">Rol</th>
-                  <th className="p-4 text-left">Estado</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {usuarios.map((usuario) => (
-                  <tr
-                    key={usuario.id}
-                    className="border-b hover:bg-green-50"
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                    Rol
+                  </label>
+                  <select
+                    value={rolNuevo}
+                    onChange={(e) => setRolNuevo(e.target.value)}
+                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                   >
-                    <td className="p-4">{usuario.nombre}</td>
-                    <td className="p-4">{usuario.email}</td>
-                    <td className="p-4">{usuario.rol}</td>
-                    <td className="p-4">
-                      {usuario.activo ? "🟢 Activo" : "🔴 Inactivo"}
-                    </td>
+                    <option value="admin">Admin</option>
+                    <option value="operador">Operador</option>
+                    <option value="visualizador">Visualizador</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-5">
+                <button
+                  onClick={guardarUsuario}
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md shadow-green-900/20 hover:shadow-lg transition-all"
+                >
+                  Guardar Usuario
+                </button>
+
+                <button
+                  onClick={() => setMostrarFormulario(false)}
+                  className="px-6 py-3 rounded-xl font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Tabla */}
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md ring-1 ring-gray-100 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-gradient-to-r from-green-700 to-emerald-700 text-white">
+                    <th className="p-4 font-semibold text-sm uppercase tracking-wide">Nombre</th>
+                    <th className="p-4 font-semibold text-sm uppercase tracking-wide">Correo</th>
+                    <th className="p-4 font-semibold text-sm uppercase tracking-wide">Rol</th>
+                    <th className="p-4 font-semibold text-sm uppercase tracking-wide">Estado</th>
                   </tr>
-                ))}
-              </tbody>
+                </thead>
 
-            </table>
+                <tbody className="divide-y divide-gray-100">
+                  {usuarios.map((usuario) => (
+                    <tr key={usuario.id} className="hover:bg-green-50/60 transition-colors">
+                      <td className="p-4 font-medium text-gray-800">{usuario.nombre}</td>
+                      <td className="p-4 text-gray-600">{usuario.email}</td>
+                      <td className="p-4">
+                        <span
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold capitalize ${
+                            rolBadge[usuario.rol] ?? "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {usuario.rol}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        {usuario.activo ? (
+                          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700">
+                            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                            Activo
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-red-600">
+                            <span className="h-2 w-2 rounded-full bg-red-500" />
+                            Inactivo
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
 
+                  {usuarios.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="p-10 text-center text-gray-400">
+                        No hay usuarios registrados.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
         </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
+import { obtenerRolUsuario } from "../../lib/auth";
 import AuthGuard from "../../components/AuthGuard";
 import Link from "next/link";
 
@@ -10,6 +11,7 @@ export default function PesajesPage() {
   const [fecha, setFecha] = useState("");
   const [peso, setPeso] = useState("");
   const [editandoId, setEditandoId] = useState<number | null>(null);
+  const [rol, setRol] = useState<string | null>(null);
 
 
 
@@ -47,7 +49,13 @@ const pesoMinimo =
   useEffect(() => {
     cargarAnimales();
     cargarPesajes();
+    cargarRol();
   }, []);
+  
+  async function cargarRol() {
+    const rolUsuario = await obtenerRolUsuario();
+    setRol(rolUsuario);
+  }
 
   function editarPesaje(pesaje: any) {
     setEditandoId(pesaje.id);
@@ -196,8 +204,9 @@ const pesoMinimo =
           </p>
         </div>
 
-        {/* Formulario */}
-        <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg ring-1 ring-gray-100">
+      {/* Formulario */}
+{rol !== "visualizador" && (
+<div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg ring-1 ring-gray-100">
           <h2 className="text-lg font-bold text-green-700 mb-4 flex items-center gap-2">
             {editandoId ? "✏️ Editar Pesaje" : "📝 Nuevo Pesaje"}
           </h2>
@@ -274,8 +283,9 @@ const pesoMinimo =
                 Cancelar
               </button>
             )}
-          </div>
+      </div>
         </div>
+        )}
 
         {/* Tarjetas de estadísticas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
@@ -378,22 +388,26 @@ const pesoMinimo =
                       </td>
 
                       <td className="p-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => editarPesaje(pesaje)}
-                            className="inline-flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
-                          >
-                            ✏️ Editar
-                          </button>
+  <div className="flex items-center justify-center gap-2">
+    {rol !== "visualizador" && (
+      <button
+        onClick={() => editarPesaje(pesaje)}
+        className="inline-flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
+      >
+        ✏️ Editar
+      </button>
+    )}
 
-                          <button
-                            onClick={() => eliminarPesaje(pesaje.id)}
-                            className="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
-                          >
-                            🗑️ Eliminar
-                          </button>
-                        </div>
-                      </td>
+    {rol !== "visualizador" && (
+      <button
+        onClick={() => eliminarPesaje(pesaje.id)}
+        className="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
+      >
+        🗑️ Eliminar
+      </button>
+    )}
+  </div>
+</td>
                     </tr>
                   ))}
 

@@ -3,10 +3,12 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import AuthGuard from "../../components/AuthGuard";
+import { obtenerRolUsuario } from "../../lib/auth";
 
 
 export default function GanadoPage() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [rol, setRol] = useState<string | null>(null);
   
   const [arete, setArete] = useState("");
   const [nombre, setNombre] = useState("");
@@ -27,7 +29,13 @@ const [animales, setAnimales] = useState<{
 
 useEffect(() => {
   cargarAnimales();
+  cargarRol();
 }, []);
+
+async function cargarRol() {
+  const rolUsuario = await obtenerRolUsuario();
+  setRol(rolUsuario);
+}
 
 async function cargarAnimales() {
   const { data, error } = await supabase
@@ -158,12 +166,14 @@ async function eliminarAnimal(index: number) {
             </p>
           </div>
 
-          <button
-            onClick={() => setMostrarFormulario(!mostrarFormulario)}
-            className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-green-900/20 hover:shadow-lg hover:-translate-y-0.5 transition-all"
-          >
-            ➕ Registrar Animal
-          </button>
+          {rol !== "visualizador" && (
+  <button
+    onClick={() => setMostrarFormulario(!mostrarFormulario)}
+    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-green-900/20 hover:shadow-lg hover:-translate-y-0.5 transition-all"
+  >
+    ➕ Registrar Animal
+  </button>
+)}
         </div>
 
         {/* Buscador */}
@@ -321,21 +331,25 @@ async function eliminarAnimal(index: number) {
                       <td className="p-4 text-gray-800 font-semibold">{animal.peso} kg</td>
 
                       <td className="p-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => editarAnimal(index)}
-                            className="inline-flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
-                          >
-                            ✏️ Editar
-                          </button>
+                      <div className="flex items-center justify-center gap-2">
+  {rol !== "visualizador" && (
+    <button
+      onClick={() => editarAnimal(index)}
+      className="inline-flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
+    >
+      ✏️ Editar
+    </button>
+  )}
 
-                          <button
-                            onClick={() => eliminarAnimal(index)}
-                            className="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
-                          >
-                            🗑️ Eliminar
-                          </button>
-                        </div>
+  {rol !== "visualizador" && (
+    <button
+      onClick={() => eliminarAnimal(index)}
+      className="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
+    >
+      🗑️ Eliminar
+    </button>
+  )}
+</div>
                       </td>
                     </tr>
                   ))}
