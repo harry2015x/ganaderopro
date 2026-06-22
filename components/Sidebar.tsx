@@ -59,7 +59,6 @@ async function cerrarSesion() {
 
       {/* Navegación */}
       <nav className="flex flex-col gap-1">
-      <nav className="flex flex-col gap-1">
   {links
     .filter((link) => {
       if (link.href === "/usuarios" && rol !== "admin") {
@@ -114,10 +113,10 @@ async function cerrarSesion() {
                   Pronto
                 </span>
               )}
-            </Link>
-          );
-        })}
-      </nav>
+                  </Link>
+      );
+    })}
+</nav>
 
       {/* Footer */}
 <div className="mt-auto pt-6 border-t border-white/10">
