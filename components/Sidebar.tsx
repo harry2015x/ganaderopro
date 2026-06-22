@@ -59,18 +59,28 @@ async function cerrarSesion() {
 
       {/* Navegación */}
       <nav className="flex flex-col gap-1">
-        {links.map((link) => {
-          const activo =
-            link.href !== "#" &&
-            (pathname === link.href ||
-              (link.href !== "/" && pathname.startsWith(link.href)));
+      <nav className="flex flex-col gap-1">
+  {links
+    .filter((link) => {
+      if (link.href === "/usuarios" && rol !== "admin") {
+        return false;
+      }
+      return true;
+    })
+    .map((link) => {
 
-          const deshabilitado = link.href === "#";
+      const activo =
+        link.href !== "#" &&
+        (pathname === link.href ||
+          (link.href !== "/" && pathname.startsWith(link.href)));
 
-          return (
-            <Link
-              key={link.label}
-              href={link.href}
+      const deshabilitado = link.href === "#";
+
+      return (
+        <Link
+          key={link.label}
+          href={link.href}
+          
               aria-disabled={deshabilitado}
               className={`
                 group relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl
