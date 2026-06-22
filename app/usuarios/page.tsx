@@ -250,6 +250,7 @@ export default function UsuariosPage() {
 
                 <tbody className="divide-y divide-gray-100">
                   {usuarios.map((usuario) => {
+                    console.log("ID Usuario:", usuario.id);
                     const esAdmin = usuario.rol === "admin";
 
                     return (
