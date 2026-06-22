@@ -60,21 +60,45 @@ export default function LoginPage() {
   // ---- Auth logic (unchanged behavior) ----
   async function iniciarSesion() {
     if (loading) return;
+  
     setErrorMsg("");
     setLoading(true);
-
-    const { error } = await supabase.auth.signInWithPassword({
+  
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
-    setLoading(false);
-
+  
     if (error) {
+      setLoading(false);
       setErrorMsg(error.message);
       return;
     }
-
+  
+    // Verificar si el usuario está activo
+    const { data: usuario, error: usuarioError } = await supabase
+      .from("usuarios")
+      .select("activo")
+      .eq("id", data.user.id)
+      .single();
+  
+    if (usuarioError) {
+      await supabase.auth.signOut();
+      setLoading(false);
+      setErrorMsg("Error verificando el estado del usuario.");
+      return;
+    }
+  
+    if (!usuario?.activo) {
+      await supabase.auth.signOut();
+      setLoading(false);
+      setErrorMsg(
+        "Tu usuario se encuentra inactivo. Contacta al administrador."
+      );
+      return;
+    }
+  
+    setLoading(false);
     router.push("/");
   }
 
