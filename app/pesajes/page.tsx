@@ -66,6 +66,11 @@ const pesoMinimo =
 
   async function eliminarPesaje(id: number) {
 
+    if (rol !== "admin") {
+      alert("Solo el administrador puede eliminar pesajes");
+      return;
+    }
+
     const confirmar = confirm(
       "¿Desea eliminar este pesaje?"
     );
@@ -132,6 +137,10 @@ const pesoMinimo =
   }
 
   async function guardarPesaje() {
+    if (editandoId && rol !== "admin") {
+      alert("Solo el administrador puede editar pesajes");
+      return;
+    }
     if (!animalId || !fecha || !peso) {
       alert("Debe completar todos los campos");
       return;
@@ -389,23 +398,23 @@ const pesoMinimo =
 
                       <td className="p-4">
   <div className="flex items-center justify-center gap-2">
-    {rol !== "visualizador" && (
-      <button
-        onClick={() => editarPesaje(pesaje)}
-        className="inline-flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
-      >
-        ✏️ Editar
-      </button>
-    )}
+  {rol === "admin" && (
+  <button
+    onClick={() => editarPesaje(pesaje)}
+    className="inline-flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
+  >
+    ✏️ Editar
+  </button>
+)}
 
-    {rol !== "visualizador" && (
-      <button
-        onClick={() => eliminarPesaje(pesaje.id)}
-        className="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
-      >
-        🗑️ Eliminar
-      </button>
-    )}
+{rol === "admin" && (
+  <button
+    onClick={() => eliminarPesaje(pesaje.id)}
+    className="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
+  >
+    🗑️ Eliminar
+  </button>
+)}
   </div>
 </td>
                     </tr>
