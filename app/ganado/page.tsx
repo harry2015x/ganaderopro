@@ -51,6 +51,10 @@ async function cargarAnimales() {
 }
   
   async function guardarAnimal() {
+    if (editandoIndex !== null && rol !== "admin") {
+      alert("Solo el administrador puede editar animales");
+      return;
+    }
 
     if (editandoIndex !== null) {
 
@@ -113,6 +117,12 @@ setMostrarFormulario(false);
 } // <- ESTA LLAVE CIERRA guardarAnimal()
 
 async function eliminarAnimal(index: number) {
+
+  if (rol !== "admin") {
+    alert("Solo el administrador puede eliminar animales");
+    return;
+  }
+
   if (!confirm("¿Está seguro de eliminar este animal?")) {
     return;
   }
@@ -332,23 +342,23 @@ async function eliminarAnimal(index: number) {
 
                       <td className="p-4">
                       <div className="flex items-center justify-center gap-2">
-  {rol !== "visualizador" && (
-    <button
-      onClick={() => editarAnimal(index)}
-      className="inline-flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
-    >
-      ✏️ Editar
-    </button>
-  )}
+                      {rol === "admin" && (
+  <button
+    onClick={() => editarAnimal(index)}
+    className="inline-flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
+  >
+    ✏️ Editar
+  </button>
+)}
 
-  {rol !== "visualizador" && (
-    <button
-      onClick={() => eliminarAnimal(index)}
-      className="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
-    >
-      🗑️ Eliminar
-    </button>
-  )}
+{rol === "admin" && (
+  <button
+    onClick={() => eliminarAnimal(index)}
+    className="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
+  >
+    🗑️ Eliminar
+  </button>
+)}
 </div>
                       </td>
                     </tr>
