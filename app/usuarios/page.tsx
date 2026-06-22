@@ -47,7 +47,11 @@ export default function UsuariosPage() {
     setUsuarios(data || []);
   }
 
-  async function toggleActivo(id: number, activoActual: boolean, rol: string) {
+  async function toggleActivo(
+    id: string,
+    activoActual: boolean,
+    rol: string
+  ) {
     // Protección: los admin no se pueden desactivar
     if (rol === "admin") return;
 
