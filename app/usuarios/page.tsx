@@ -8,6 +8,13 @@ import AuthGuard from "../../components/AuthGuard";
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<any[]>([]);
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+
+const [nombre, setNombre] = useState("");
+const [email, setEmail] = useState("");
+const [rol, setRol] = useState("operador");
+const [password, setPassword] = useState("");
+
   const router = useRouter();
 
   useEffect(() => {
@@ -21,6 +28,49 @@ export default function UsuariosPage() {
       router.push("/");
       return;
     }
+  
+    cargarUsuarios();
+  }
+
+  async function guardarUsuario() {
+    // Crear usuario en Supabase Auth
+    const { data, error: authError } =
+      await supabase.auth.signUp({
+        email,
+        password,
+      });
+  
+    if (authError) {
+      alert(authError.message);
+      return;
+    }
+  
+    // Guardar datos adicionales
+    const { error } = await supabase
+      .from("usuarios")
+      .insert([
+        {
+          id: data.user?.id,
+          nombre,
+          email,
+          rol,
+          activo: true,
+        },
+      ]);
+  
+    if (error) {
+      alert(error.message);
+      return;
+    }
+  
+    alert("Usuario creado correctamente");
+  
+    setNombre("");
+    setEmail("");
+    setPassword("");
+    setRol("operador");
+  
+    setMostrarFormulario(false);
   
     cargarUsuarios();
   }
@@ -44,9 +94,83 @@ export default function UsuariosPage() {
       <main className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-6 md:p-10">
         <div className="max-w-6xl mx-auto">
 
-          <h1 className="text-4xl font-bold text-green-700 mb-6">
-            Administración de Usuarios
-          </h1>
+        <div className="flex justify-between items-center mb-6">
+  <h1 className="text-4xl font-bold text-green-700">
+    Administración de Usuarios
+  </h1>
+
+  <button
+    onClick={() => setMostrarFormulario(true)}
+    className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl font-semibold"
+  >
+    ➕ Nuevo Usuario
+  </button>
+</div>
+
+{mostrarFormulario && (
+  <div className="bg-white p-6 rounded-2xl shadow-md mb-6">
+
+    <h2 className="text-xl font-bold text-green-700 mb-4">
+      Nuevo Usuario
+    </h2>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      <input
+        type="text"
+        placeholder="Nombre"
+        value={nombre}
+        onChange={(e) => setNombre(e.target.value)}
+        className="border p-3 rounded-xl"
+      />
+
+      <input
+        type="email"
+        placeholder="Correo"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="border p-3 rounded-xl"
+      />
+
+<input
+  type="password"
+  placeholder="Contraseña"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  className="border p-3 rounded-xl"
+/>
+
+      <select
+        value={rol}
+        onChange={(e) => setRol(e.target.value)}
+        className="border p-3 rounded-xl"
+      >
+        <option value="admin">Admin</option>
+        <option value="operador">Operador</option>
+      </select>
+
+    </div>
+
+    <div className="flex gap-3 mt-4">
+
+      <button
+        onClick={guardarUsuario}
+        className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl"
+      >
+        Guardar
+      </button>
+
+      <button
+        onClick={() => setMostrarFormulario(false)}
+        className="bg-gray-300 hover:bg-gray-400 px-5 py-2 rounded-xl"
+      >
+        Cancelar
+      </button>
+
+    </div>
+
+  </div>
+)}
 
           <div className="bg-white rounded-2xl shadow-md overflow-hidden">
 
