@@ -10,6 +10,7 @@ import { saveAs } from "file-saver";
 import { Plus, FileSpreadsheet, FileText } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useSearchParams } from "next/navigation";
 
 type Animal = {
   id?: number;

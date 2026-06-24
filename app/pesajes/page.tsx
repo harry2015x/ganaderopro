@@ -9,8 +9,8 @@ import { registrarAuditoria } from "../../lib/auditoria";
 
 export default function PesajesPage() {
 
-  const searchParams = new URLSearchParams(window.location.search);
-  const animalSeleccionado = searchParams.get("animal");
+  const [animalSeleccionado, setAnimalSeleccionado] =
+  useState<string | null>(null);
   const [animalId, setAnimalId] = useState("");
   const [fecha, setFecha] = useState("");
   const [peso, setPeso] = useState("");
@@ -51,9 +51,20 @@ const pesoMinimo =
   console.log("ESTADO ANIMALES:", animales);
 
   useEffect(() => {
+
     cargarAnimales();
-    cargarPesajes();
     cargarRol();
+  
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(
+        window.location.search
+      );
+  
+      const animal = params.get("animal");
+  
+      setAnimalSeleccionado(animal);
+    }
+  
   }, []);
   
   async function cargarRol() {
