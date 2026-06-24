@@ -17,7 +17,7 @@ type Animal = {
   nombre: string;
   raza: string;
   peso: number;
-  fecha?: string;
+  fecha_nacimiento?: string;
   sexo?: string;
 };
 
@@ -177,7 +177,7 @@ export default function GanadoPage() {
           nombre,
           raza,
           peso: Number(peso),
-          fecha,
+          fecha_nacimiento: fecha,
           sexo,
         })
         .eq("id", editandoId);
@@ -211,7 +211,7 @@ export default function GanadoPage() {
       nombre,
       raza,
       peso: Number(peso),
-      fecha,
+      fecha_nacimiento: fecha,
       sexo,
     };
 
@@ -286,7 +286,7 @@ export default function GanadoPage() {
     setNombre(animal.nombre);
     setRaza(animal.raza);
     setPeso(String(animal.peso));
-    setFecha(animal.fecha ?? "");
+    setFecha(animal.fecha_nacimiento ?? "");
     setSexo(animal.sexo ?? "Macho");
 
     setEditandoId(id);
