@@ -7,6 +7,8 @@ import { obtenerRolUsuario } from "../../lib/auth";
 import { registrarAuditoria } from "../../lib/auditoria";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { Plus, FileSpreadsheet } from "lucide-react";
+
 
 
 export default function GanadoPage() {
@@ -262,19 +264,23 @@ if (usuarioGuardado) {
           </div>
 
           {rol !== "visualizador" && (
-  <button
-    onClick={() => setMostrarFormulario(!mostrarFormulario)}
-    className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-green-900/20 hover:shadow-lg hover:-translate-y-0.5 transition-all"
-  >
-    ➕ Registrar Animal
-  </button>
+  // Botón principal: Registrar Animal
+<button
+  onClick={() => setMostrarFormulario(!mostrarFormulario)}
+  className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 active:from-green-800 active:to-emerald-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-green-900/20 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transition-all duration-200"
+>
+  <Plus className="w-4 h-4" strokeWidth={2.5} />
+  {mostrarFormulario ? "Cancelar registro" : "Registrar Animal"}
+</button>
 )}
 
+// Botón secundario: Exportar Excel
 <button
   onClick={exportarExcel}
-  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold"
+  className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-blue-900/20 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-all duration-200"
 >
-  📊 Exportar Excel
+  <FileSpreadsheet className="w-4 h-4" strokeWidth={2.5} />
+  Exportar Excel
 </button>
         </div>
 
