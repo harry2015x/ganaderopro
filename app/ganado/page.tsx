@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import AuthGuard from "../../components/AuthGuard";
 import { obtenerRolUsuario } from "../../lib/auth";
+import { registrarAuditoria } from "../../lib/auditoria";
 
 
 export default function GanadoPage() {
@@ -74,6 +75,20 @@ async function cargarAnimales() {
         alert(error.message);
         return;
       }
+
+      const usuarioGuardado = localStorage.getItem("usuario");
+
+if (usuarioGuardado) {
+  const usuarioActual = JSON.parse(usuarioGuardado);
+
+  await registrarAuditoria(
+    usuarioActual.id,
+    usuarioActual.nombre,
+    "EDITAR_ANIMAL",
+    "GANADO",
+    `Animal editado - Arete ${arete}`
+  );
+}
     
       await cargarAnimales();
     
@@ -104,7 +119,19 @@ async function cargarAnimales() {
     alert(error.message);
     return;
   }
+  const usuarioGuardado = localStorage.getItem("usuario");
 
+  if (usuarioGuardado) {
+    const usuario = JSON.parse(usuarioGuardado);
+  
+    await registrarAuditoria(
+      usuario.id,
+      usuario.nombre,
+      "CREAR_ANIMAL",
+      "GANADO",
+      `Animal creado - Arete ${arete}`
+    );
+  }
   await cargarAnimales();
 
 setArete("");
@@ -138,6 +165,20 @@ async function eliminarAnimal(index: number) {
     alert(error.message);
     return;
   }
+
+  const usuarioGuardado = localStorage.getItem("usuario");
+
+if (usuarioGuardado) {
+  const usuarioActual = JSON.parse(usuarioGuardado);
+
+  await registrarAuditoria(
+    usuarioActual.id,
+    usuarioActual.nombre,
+    "ELIMINAR_ANIMAL",
+    "GANADO",
+    `Animal eliminado - Arete ${animal.arete}`
+  );
+}
 
   await cargarAnimales();
 }
