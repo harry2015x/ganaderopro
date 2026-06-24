@@ -3,23 +3,26 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
+import { useDashboard } from "@/hooks/useDashboard";
 import AuthGuard from "../components/AuthGuard";
 
 export default function Home() {
 
   const router = useRouter();
 const [cargando, setCargando] = useState(true);
-  const [totalAnimales, setTotalAnimales] = useState(0);
-  const [totalPesajes, setTotalPesajes] = useState(0);
-  const [ultimoPeso, setUltimoPeso] = useState(0);
-  const [pesoPromedio, setPesoPromedio] = useState(0);
+
+
+  const {
+    dashboard,
+    recargar,
+  } = useDashboard();
   
   useEffect(() => {
     verificarSesion();
   }, []);
   
   async function verificarSesion() {
-  
+
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -29,46 +32,12 @@ const [cargando, setCargando] = useState(true);
       return;
     }
   
-    cargarDashboard();
+    await recargar();
+  
     setCargando(false);
   }
 
-  async function cargarDashboard() {
-
-    const { count: animalesCount } = await supabase
-      .from("animales")
-      .select("*", { count: "exact", head: true });
-
-      const { data: todosPesajes } = await supabase
-      .from("Pesaje")
-      .select("peso");
-    
-    const { data: ultimoRegistro } = await supabase
-      .from("Pesaje")
-      .select("peso")
-      .order("id", { ascending: false })
-      .limit(1)
-      .single();
-
-    const { count: pesajesCount } = await supabase
-      .from("Pesaje")
-      .select("*", { count: "exact", head: true });
-
-    setTotalAnimales(animalesCount || 0);
-    setTotalPesajes(pesajesCount || 0);
-    setUltimoPeso(ultimoRegistro?.peso || 0);
-
-    if (todosPesajes && todosPesajes.length > 0) {
-      const suma = todosPesajes.reduce(
-        (acc, item) => acc + item.peso,
-        0
-      );
-    
-      setPesoPromedio(
-        Number((suma / todosPesajes.length).toFixed(1))
-      );
-    }
-  }
+ 
 
   if (cargando) {
     return (
@@ -121,7 +90,7 @@ const [cargando, setCargando] = useState(true);
             </p>
 
             <p className="text-4xl font-bold mt-3 text-gray-800">
-              {totalAnimales}
+            {dashboard.totalAnimales}
             </p>
           </div>
 
@@ -142,7 +111,7 @@ const [cargando, setCargando] = useState(true);
             </p>
 
             <p className="text-4xl font-bold mt-3 text-gray-800">
-              {pesoPromedio} <span className="text-xl font-semibold text-gray-400">kg</span>
+            {dashboard.pesoPromedio} <span className="text-xl font-semibold text-gray-400">kg</span>
             </p>
           </div>
 
@@ -163,7 +132,7 @@ const [cargando, setCargando] = useState(true);
             </p>
 
             <p className="text-4xl font-bold mt-3 text-gray-800">
-              {ultimoPeso} <span className="text-xl font-semibold text-gray-400">kg</span>
+            {dashboard.ultimoPeso} <span className="text-xl font-semibold text-gray-400">kg</span>
             </p>
           </div>
 
@@ -184,7 +153,7 @@ const [cargando, setCargando] = useState(true);
             </p>
 
             <p className="text-4xl font-bold mt-3 text-gray-800">
-              {totalPesajes}
+            {dashboard.totalPesajes}
             </p>
           </div>
 

@@ -3,11 +3,16 @@
 import { Bell } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import { useNotificaciones } from "@/hooks/useNotificaciones";
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
 
-  const total = 3;
+  const {
+    notificaciones,
+    cantidadNoLeidas,
+    cargando,
+  } = useNotificaciones();
 
   return (
     <div className="relative">
@@ -17,9 +22,9 @@ export default function NotificationBell() {
       >
         <Bell className="h-5 w-5 text-green-700" />
 
-        {total > 0 && (
+        {cantidadNoLeidas > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-            {total}
+            {cantidadNoLeidas}
           </span>
         )}
       </button>
@@ -34,37 +39,74 @@ export default function NotificationBell() {
 
           <div className="p-4 space-y-3">
 
-            <div className="border rounded-xl p-3">
-              <p className="font-semibold">
-                Darwin
-              </p>
+  {cargando && (
+    <p className="text-center text-gray-500">
+      Cargando...
+    </p>
+  )}
 
-              <p className="text-sm text-gray-600">
-                Vacuna vence en 7 días
-              </p>
-            </div>
+  {!cargando && notificaciones.length === 0 && (
+    <p className="text-center text-gray-500">
+      No hay notificaciones.
+    </p>
+  )}
 
-            <div className="border rounded-xl p-3">
-              <p className="font-semibold">
-                Pepito 1
-              </p>
+  {notificaciones.map((n) => (
 
-              <p className="text-sm text-gray-600">
-                Sin pesaje hace 30 días
-              </p>
-            </div>
+    <Link
+      key={n.id}
+      href={n.url || "#"}
+      onClick={() => setOpen(false)}
+      className="block border rounded-xl p-3 hover:bg-green-50 transition"
+    >
 
-            <div className="border rounded-xl p-3">
-              <p className="font-semibold">
-                Luna
-              </p>
+      <div className="flex items-start gap-3">
 
-              <p className="text-sm text-gray-600">
-                Control reproductivo pendiente
-              </p>
-            </div>
+        <div className="text-2xl">
 
-          </div>
+          {n.icono}
+
+        </div>
+
+        <div className="flex-1">
+
+          <p className="font-semibold">
+
+            {n.animalNombre}
+
+          </p>
+
+          <p className="text-xs text-gray-500">
+
+            Arete {n.animalArete}
+
+          </p>
+
+          <p className="text-sm text-gray-600 mt-1">
+
+            {n.descripcion}
+
+          </p>
+
+          {n.accion && (
+
+            <span className="inline-block mt-2 text-sm font-semibold text-green-700">
+
+              {n.accion} →
+
+            </span>
+
+          )}
+
+        </div>
+
+      </div>
+
+    </Link>
+
+  ))}
+
+</div>
 
           <div className="p-4 border-t">
             <Link
