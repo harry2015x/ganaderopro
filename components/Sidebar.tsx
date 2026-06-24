@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { supabase } from "../lib/supabase";
 import { useEffect, useState } from "react";
 import { obtenerRolUsuario } from "../lib/auth";
+import { registrarAuditoria } from "../lib/auditoria";
 
 const links = [
   { href: "/",          label: "Dashboard",  icon: "📊" },
@@ -33,7 +34,26 @@ export default function Sidebar() {
   }
 
   async function cerrarSesion() {
+
+    const usuarioGuardado = localStorage.getItem("usuario");
+  
+    if (usuarioGuardado) {
+  
+      const usuario = JSON.parse(usuarioGuardado);
+  
+      await registrarAuditoria(
+        usuario.id,
+        usuario.nombre,
+        "CERRAR_SESION",
+        "LOGIN",
+        "Usuario cerró sesión"
+      );
+    }
+  
     await supabase.auth.signOut();
+  
+    localStorage.removeItem("usuario");
+  
     window.location.href = "/login";
   }
 
