@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import { obtenerRolUsuario } from "../../lib/auth";
 import AuthGuard from "../../components/AuthGuard";
 import Link from "next/link";
+import { registrarAuditoria } from "../../lib/auditoria";
 
 export default function PesajesPage() {
   const [animalId, setAnimalId] = useState("");
@@ -86,6 +87,23 @@ const pesoMinimo =
       alert(error.message);
       return;
     }
+
+    const usuarioGuardado =
+  localStorage.getItem("usuario");
+
+if (usuarioGuardado) {
+
+  const usuario =
+    JSON.parse(usuarioGuardado);
+
+  await registrarAuditoria(
+    usuario.id,
+    usuario.nombre,
+    "ELIMINAR_PESAJE",
+    "PESAJES",
+    `Pesaje eliminado ID ${id}`
+  );
+}
   
     await cargarPesajes();
   
@@ -159,6 +177,25 @@ const pesoMinimo =
         .eq("id", editandoId);
   
       error = resultado.error;
+
+      if (!resultado.error) {
+
+        const usuarioGuardado =
+          localStorage.getItem("usuario");
+      
+        if (usuarioGuardado) {
+          const usuario = JSON.parse(usuarioGuardado);
+      
+          await registrarAuditoria(
+            usuario.id,
+            usuario.nombre,
+            "EDITAR_PESAJE",
+            "PESAJES",
+            `Pesaje editado - ${peso} kg`
+          );
+        }
+      
+      }
     } else {
       const resultado = await supabase
         .from("Pesaje")
@@ -177,6 +214,21 @@ const pesoMinimo =
       alert(error.message);
       return;
     }
+
+    const usuarioGuardado =
+  localStorage.getItem("usuario");
+
+if (usuarioGuardado) {
+  const usuario = JSON.parse(usuarioGuardado);
+
+  await registrarAuditoria(
+    usuario.id,
+    usuario.nombre,
+    "CREAR_PESAJE",
+    "PESAJES",
+    `Pesaje registrado - ${peso} kg`
+  );
+}
   
     await cargarPesajes();
   
