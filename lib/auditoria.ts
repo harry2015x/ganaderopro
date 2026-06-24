@@ -7,7 +7,7 @@ export async function registrarAuditoria(
   modulo: string,
   descripcion: string
 ) {
-  await supabase
+  const { error } = await supabase
     .from("auditoria")
     .insert({
       usuario_id: usuarioId,
@@ -16,4 +16,10 @@ export async function registrarAuditoria(
       modulo,
       descripcion,
     });
+
+  if (error) {
+    console.error("ERROR AUDITORIA:", error);
+  } else {
+    console.log("AUDITORIA REGISTRADA");
+  }
 }
