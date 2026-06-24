@@ -511,7 +511,7 @@ export default function GanadoPage() {
 
 <Link
   href={`/pesajes?animal=${animal.id}`}
-  className="inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-3 py-2 rounded-lg"
+  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-semibold"
 >
   ⚖️ Pesajes
 </Link>
