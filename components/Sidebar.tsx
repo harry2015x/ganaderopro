@@ -14,6 +14,7 @@ const links = [
   { href: "/graficas",  label: "Gráficas",    icon: "📈" },
   { href: "#",          label: "Reproducción",icon: "❤️" },
   { href: "#",          label: "Costos",      icon: "💰" },
+  { href: "/auditoria", label: "Auditoría", icon: "📋", soloAdmin: true },
   { href: "/usuarios",  label: "Usuarios",    icon: "👤", soloAdmin: true },
 ];
 
