@@ -139,8 +139,10 @@ function PesajesContent() {
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
     const param = searchParams.get("animal");
+  
     if (param) {
       setAnimalSeleccionado(param);
+      setAnimalId(param); // ← auto selecciona el animal en Nuevo Pesaje
     }
   }, [searchParams]);
 
@@ -642,7 +644,7 @@ function PesajesContent() {
                 {editandoId && (
                   <button
                     onClick={() => {
-                      setAnimalId("");
+                      setAnimalId(animalSeleccionado || "");
                       setFecha("");
                       setPeso("");
                       setEditandoId(null);
