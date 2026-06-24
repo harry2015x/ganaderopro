@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
+import Header from "./Header";
 
 export default function LayoutClient({
   children,
@@ -15,10 +16,14 @@ export default function LayoutClient({
   return (
     <div className="flex">
       {!ocultarSidebar && <Sidebar />}
-
-      <main className="flex-1">
-        {children}
-      </main>
+  
+      <div className="flex-1">
+        {!ocultarSidebar && <Header />}
+  
+        <main className="p-6">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
