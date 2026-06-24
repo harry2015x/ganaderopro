@@ -509,6 +509,13 @@ export default function GanadoPage() {
                             </button>
                           )}
 
+<Link
+  href={`/ganado/pesajes/${animal.id}`}
+  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-semibold"
+>
+  ⚖️ Pesajes
+</Link>
+
                           {rol === "admin" && (
                             <button
                               onClick={() => animal.id !== undefined && eliminarAnimal(animal.id)}
