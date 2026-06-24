@@ -5,6 +5,8 @@ import { supabase } from "../../lib/supabase";
 import AuthGuard from "../../components/AuthGuard";
 import { obtenerRolUsuario } from "../../lib/auth";
 import { registrarAuditoria } from "../../lib/auditoria";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 
 export default function GanadoPage() {
@@ -50,7 +52,49 @@ async function cargarAnimales() {
 
   setAnimales(data || []);
 }
-  
+async function exportarExcel() {
+
+  const workbook = new ExcelJS.Workbook();
+
+  const worksheet = workbook.addWorksheet("Ganado");
+
+  worksheet.columns = [
+    { header: "Arete", key: "arete", width: 20 },
+    { header: "Nombre", key: "nombre", width: 25 },
+    { header: "Raza", key: "raza", width: 25 },
+    { header: "Peso", key: "peso", width: 15 },
+  ];
+
+  animales.forEach((animal) => {
+    worksheet.addRow({
+      arete: animal.arete,
+      nombre: animal.nombre,
+      raza: animal.raza,
+      peso: animal.peso,
+    });
+  });
+
+  const buffer = await workbook.xlsx.writeBuffer();
+
+  saveAs(
+    new Blob([buffer]),
+    `Inventario_Ganadero_${new Date().toISOString().slice(0,10)}.xlsx`
+  );
+
+  const usuarioGuardado = localStorage.getItem("usuario");
+
+  if (usuarioGuardado) {
+    const usuario = JSON.parse(usuarioGuardado);
+
+    await registrarAuditoria(
+      usuario.id,
+      usuario.nombre,
+      "EXPORTAR_EXCEL",
+      "GANADO",
+      "Usuario exportó inventario ganadero"
+    );
+  }
+}
   async function guardarAnimal() {
     if (editandoIndex !== null && rol !== "admin") {
       alert("Solo el administrador puede editar animales");
@@ -225,6 +269,13 @@ if (usuarioGuardado) {
     ➕ Registrar Animal
   </button>
 )}
+
+<button
+  onClick={exportarExcel}
+  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold"
+>
+  📊 Exportar Excel
+</button>
         </div>
 
         {/* Buscador */}
