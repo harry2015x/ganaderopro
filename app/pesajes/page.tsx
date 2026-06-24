@@ -8,6 +8,9 @@ import Link from "next/link";
 import { registrarAuditoria } from "../../lib/auditoria";
 
 export default function PesajesPage() {
+
+  const searchParams = new URLSearchParams(window.location.search);
+  const animalSeleccionado = searchParams.get("animal");
   const [animalId, setAnimalId] = useState("");
   const [fecha, setFecha] = useState("");
   const [peso, setPeso] = useState("");
@@ -128,7 +131,8 @@ if (usuarioGuardado) {
   }
 
   async function cargarPesajes() {
-    const { data, error } = await supabase
+
+    let consulta = supabase
       .from("Pesaje")
       .select(`
         id,
@@ -140,7 +144,16 @@ if (usuarioGuardado) {
           nombre,
           arete
         )
-      `)
+      `);
+  
+    if (animalSeleccionado) {
+      consulta = consulta.eq(
+        "animal_id",
+        Number(animalSeleccionado)
+      );
+    }
+  
+    const { data, error } = await consulta
       .order("fecha", { ascending: false });
   
     console.log(data);
