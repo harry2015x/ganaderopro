@@ -144,13 +144,23 @@ export default function UsuariosPage() {
       alert(error.message);
       return;
     }
-
+    
+    await registrarAuditoria(
+      data.user?.id || "",
+      nombre,
+      "CREAR_USUARIO",
+      "USUARIOS",
+      `Usuario creado con rol ${rolNuevo}`
+    );
+    
     alert("Usuario creado correctamente");
+    
     setNombre("");
     setEmail("");
     setPassword("");
     setRolNuevo("operador");
     setMostrarFormulario(false);
+    
     await cargarUsuarios();
   }
 
