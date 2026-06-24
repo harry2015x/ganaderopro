@@ -274,7 +274,7 @@ if (usuarioGuardado) {
 </button>
 )}
 
-// Botón secundario: Exportar Excel
+
 <button
   onClick={exportarExcel}
   className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-blue-900/20 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-all duration-200"
