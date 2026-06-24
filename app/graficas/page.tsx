@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import AuthGuard from "../../components/AuthGuard";
 import Link from "next/link";
+import { registrarAuditoria } from "../../lib/auditoria";
 
 import {
   LineChart,
@@ -46,6 +47,9 @@ export default function GraficasPage() {
     cargarGrafica();
   }, []);
 
+
+  
+
   async function cargarGrafica() {
 
     const { data, error } = await supabase
@@ -72,7 +76,26 @@ export default function GraficasPage() {
       })) || [];
 
     setDatos(formateado);
+
+    const usuarioGuardado =
+    localStorage.getItem("usuario");
+  
+  if (usuarioGuardado) {
+  
+    const usuario =
+      JSON.parse(usuarioGuardado);
+  
+    await registrarAuditoria(
+      usuario.id,
+      usuario.nombre,
+      "VER_GRAFICAS",
+      "GRAFICAS",
+      "Usuario consultó reportes estadísticos"
+    );
   }
+  }
+
+
 
   // Lista única de animales presentes en los datos (solo presentación)
   const nombresAnimales = useMemo(() => {
