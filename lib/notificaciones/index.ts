@@ -1,5 +1,6 @@
 import { Notificacion } from "@/types";
 import { revisarPesajes } from "./pesajes";
+import { generarInteligencia } from "./inteligencia";
 
 export async function obtenerNotificaciones(): Promise<Notificacion[]> {
 
@@ -7,8 +8,16 @@ export async function obtenerNotificaciones(): Promise<Notificacion[]> {
 
   const pesajes = await revisarPesajes();
 
-  notificaciones.push(...pesajes);
+notificaciones.push(...pesajes);
 
-  return notificaciones;
+//--------------------------------------
+// Inteligencia del sistema
+//--------------------------------------
+
+const inteligentes = await generarInteligencia(notificaciones);
+
+notificaciones.push(...inteligentes);
+
+return notificaciones;
 
 }

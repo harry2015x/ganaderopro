@@ -4,6 +4,7 @@ import { Bell } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { useNotificaciones } from "@/hooks/useNotificaciones";
+import NotificationCard from "./NotificationCard";
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
@@ -51,60 +52,15 @@ export default function NotificationBell() {
     </p>
   )}
 
-  {notificaciones.map((n) => (
+{notificaciones.map((n) => (
 
-    <Link
-      key={n.id}
-      href={n.url || "#"}
-      onClick={() => setOpen(false)}
-      className="block border rounded-xl p-3 hover:bg-green-50 transition"
-    >
+<NotificationCard
+  key={n.id}
+  notificacion={n}
+  onClick={() => setOpen(false)}
+/>
 
-      <div className="flex items-start gap-3">
-
-        <div className="text-2xl">
-
-          {n.icono}
-
-        </div>
-
-        <div className="flex-1">
-
-          <p className="font-semibold">
-
-            {n.animalNombre}
-
-          </p>
-
-          <p className="text-xs text-gray-500">
-
-            Arete {n.animalArete}
-
-          </p>
-
-          <p className="text-sm text-gray-600 mt-1">
-
-            {n.descripcion}
-
-          </p>
-
-          {n.accion && (
-
-            <span className="inline-block mt-2 text-sm font-semibold text-green-700">
-
-              {n.accion} →
-
-            </span>
-
-          )}
-
-        </div>
-
-      </div>
-
-    </Link>
-
-  ))}
+))}
 
 </div>
 
