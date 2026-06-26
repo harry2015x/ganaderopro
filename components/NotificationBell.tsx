@@ -32,11 +32,45 @@ export default function NotificationBell() {
 
       {open && (
         <div className="absolute right-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl border z-50">
-          <div className="p-4 border-b">
-            <h2 className="font-bold text-lg">
-              Notificaciones
-            </h2>
-          </div>
+          <div className="p-5 border-b bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-2xl">
+
+<div className="flex items-center justify-between">
+
+  <div className="flex items-center gap-3">
+
+    <div className="w-11 h-11 rounded-xl bg-green-600 flex items-center justify-center text-white text-xl shadow-md">
+
+      🔔
+
+    </div>
+
+    <div>
+
+      <h2 className="font-bold text-lg text-gray-800">
+
+        Notificaciones
+
+      </h2>
+
+      <p className="text-xs text-gray-500">
+
+        {cantidadNoLeidas} acciones pendientes
+
+      </p>
+
+    </div>
+
+  </div>
+
+  <div className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
+
+    {cantidadNoLeidas}
+
+  </div>
+
+</div>
+
+</div>
 
           <div className="p-4 space-y-3">
 
