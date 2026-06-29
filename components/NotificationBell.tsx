@@ -1,13 +1,14 @@
 "use client";
 
 import { Bell } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useNotificaciones } from "@/hooks/useNotificaciones";
 import NotificationCenter from "./NotificationCenter";
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   // Asignamos [] y 0 como valores por defecto por si el hook aún no tiene los datos listos
   const {
@@ -16,8 +17,48 @@ export default function NotificationBell() {
     cargando,
   } = useNotificaciones();
 
+  useEffect(() => {
+
+    function handleClickOutside(event: MouseEvent) {
+  
+      if (
+  
+        panelRef.current &&
+  
+        !panelRef.current.contains(event.target as Node)
+  
+      ) {
+  
+        setOpen(false);
+  
+      }
+  
+    }
+  
+    document.addEventListener(
+  
+      "mousedown",
+  
+      handleClickOutside
+  
+    );
+  
+    return () => {
+  
+      document.removeEventListener(
+  
+        "mousedown",
+  
+        handleClickOutside
+  
+      );
+  
+    };
+  
+  }, []);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={panelRef}>
       <button
         onClick={() => setOpen(!open)}
         className="relative h-11 w-11 rounded-full bg-green-50 hover:bg-green-100 flex items-center justify-center"
@@ -32,7 +73,21 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl border z-50">
+        <div className="absolute
+        right-0
+        mt-2
+        w-[420px]
+        max-w-[95vw]
+        rounded-2xl
+        bg-white
+        shadow-2xl
+        border
+        z-[9999]
+        origin-top-right
+        animate-in
+        fade-in
+        zoom-in-95
+        duration-200">
           <div className="p-4 space-y-3">
             {cargando && (
               <p className="text-center text-gray-500">
