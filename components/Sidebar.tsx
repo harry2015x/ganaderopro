@@ -164,7 +164,7 @@ export default function Sidebar() {
       <aside
         className={`
           fixed inset-y-0 left-0 z-[50]
-          md:relative md:z-auto md:translate-x-0
+          md:relative md:z-0 md:translate-x-0
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
           h-screen
           flex flex-col
@@ -184,10 +184,6 @@ export default function Sidebar() {
         <button
           onClick={() => setExpandido(!expandido)}
           title={expandido ? "Colapsar menú" : "Expandir menú"}
-          style={{
-            // En desktop: fixed para garantizar que quede siempre encima
-            // La posición left se calcula dinámicamente según el ancho del sidebar
-          }}
           className={`
             fixed top-6 z-[9999]
             hidden md:flex
@@ -276,14 +272,13 @@ export default function Sidebar() {
         {/* ── Navegación ── */}
         <nav
           className={`
-            flex-1 overflow-y-auto overflow-x-visible
+            flex-1 overflow-y-auto overflow-x-hidden
             ${expandido ? "px-3" : "px-2"}
             [&::-webkit-scrollbar]:w-[3px]
             [&::-webkit-scrollbar-track]:bg-transparent
             [&::-webkit-scrollbar-thumb]:rounded-full
             [&::-webkit-scrollbar-thumb]:bg-emerald-600/40
-            [&::-webkit-scrollbar-thumb]:hover:bg-emerald-400/70
-            scrollbar-thin
+            [&::-webkit-scrollbar-thumb:hover]:bg-emerald-400/70
           `}
         >
           {navGroups.map((group) => {
@@ -362,11 +357,13 @@ export default function Sidebar() {
                           </span>
                         )}
 
-                        {/* Tooltip en modo colapsado */}
+                        {/* Tooltip en modo colapsado — fixed para escapar del overflow del nav */}
                         {!expandido && (
                           <span
                             className="
-                              pointer-events-none absolute left-full top-1/2 z-[9999] ml-3 -translate-y-1/2
+                              pointer-events-none
+                              fixed left-[84px] z-[9999]
+                              -translate-y-1/2
                               whitespace-nowrap rounded-lg bg-green-950 px-2.5 py-1.5
                               text-xs font-medium text-white shadow-lg ring-1 ring-white/10
                               opacity-0 invisible
