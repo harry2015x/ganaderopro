@@ -73,7 +73,7 @@ export default function NotificationCenter({
   const read = filtered.filter((n) => n.leida);
 
   return (
-    <div className="w-[420px] max-w-[95vw] h-[650px] rounded-3xl bg-white shadow-2xl overflow-hidden flex flex-col font-sans">
+    <div className="w-[420px] max-w-[95vw] h-[650px] bg-white flex flex-col font-sans">
 
       {/* ── Header ── */}
       <div className="flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">
@@ -116,7 +116,7 @@ export default function NotificationCenter({
       </div>
 
       {/* ── Separador ── */}
-      <div className="h-px bg-gray-100 flex-shrink-0" />
+      <div className="border-b border-gray-100 flex-shrink-0" />
 
       {/* ── Lista con scroll ── */}
       <div
@@ -163,7 +163,7 @@ export default function NotificationCenter({
       </div>
 
       {/* ── Footer fijo ── */}
-      <div className="flex-shrink-0 border-t border-gray-100 bg-white">
+      <div className="flex-shrink-0 border-t border-gray-100">
         <Link
           href="/notificaciones"
           className="flex items-center justify-center py-3 text-[13px] font-semibold text-green-700 hover:text-green-800 hover:bg-green-50 transition-all duration-200"

@@ -78,18 +78,8 @@ export default function NotificationBell() {
         mt-2
         w-[420px]
         max-w-[95vw]
-        rounded-2xl
         bg-white
-        shadow-2xl
-        border
-        z-[9999]
-        origin-top-right
-        transition-all
-        duration-200
-        ease-out
-        animate-in
-        fade-in
-        zoom-in-95">
+        z-[9999]">
           <div className="p-4 space-y-3">
             {cargando && (
               <p className="text-center text-gray-500">
