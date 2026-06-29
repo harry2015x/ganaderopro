@@ -73,7 +73,7 @@ export default function NotificationCenter({
   const read   = filtered.filter((n) => n.leida);
 
   return (
-    <div className="w-full max-w-sm rounded-2xl border border-gray-200 bg-white shadow-lg overflow-hidden font-sans">
+    <div className="w-[420px] max-w-[95vw] h-[620px] rounded-2xl border border-gray-200 bg-white shadow-lg overflow-hidden flex flex-col font-sans">
 
       {/* ── Header ── */}
       <div className="flex items-center justify-between px-5 pt-5 pb-2">
@@ -115,11 +115,15 @@ export default function NotificationCenter({
 
       {/* ── Scrollable list ── */}
       <ul
-        className="max-h-[460px] overflow-y-auto flex flex-col gap-0.5 p-2
-                   [&::-webkit-scrollbar]:w-1.5
-                   [&::-webkit-scrollbar-thumb]:rounded-full
-                   [&::-webkit-scrollbar-thumb]:bg-gray-300
-                   [&::-webkit-scrollbar-track]:bg-transparent"
+        className="flex-1
+        overflow-y-auto
+        p-2
+        space-y-1
+        
+        [&::-webkit-scrollbar]:w-1.5
+        [&::-webkit-scrollbar-thumb]:rounded-full
+        [&::-webkit-scrollbar-thumb]:bg-gray-300
+        [&::-webkit-scrollbar-track]:bg-transparent"
         role="list"
       >
         {filtered.length === 0 && (
