@@ -6,7 +6,7 @@ import NotificationBell from "./NotificationBell";
 export default function Header() {
   return (
     <header className=" relative
-    z-[1000]
+    z-20
     w-full
     bg-white/80
     backdrop-blur

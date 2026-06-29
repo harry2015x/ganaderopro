@@ -184,14 +184,25 @@ export default function Sidebar() {
           onClick={() => setExpandido(!expandido)}
           title={expandido ? "Colapsar menú" : "Expandir menú"}
           className="
-            absolute -right-3.5 top-6 z-[10001]
-            hidden h-7 w-7 items-center justify-center
-            rounded-full bg-emerald-500 shadow-lg
-            text-white
-            hover:bg-emerald-400 transition-colors
-            ring-2 ring-green-950
-            md:flex
-          "
+absolute
+-right-4
+top-6
+z-[99999]
+hidden
+h-8
+w-8
+items-center
+justify-center
+rounded-full
+bg-emerald-500
+text-white
+shadow-xl
+ring-2
+ring-green-950
+transition
+hover:bg-emerald-400
+md:flex
+"
         >
           {expandido ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
