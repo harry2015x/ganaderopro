@@ -113,57 +113,70 @@ export default function NotificationCenter({
         ))}
       </div>
 
-      {/* ── Scrollable list ── */}
-      <ul
-        className="flex-1
-        overflow-y-auto
-        p-2
-        space-y-1
-        
-        [&::-webkit-scrollbar]:w-1.5
-        [&::-webkit-scrollbar-thumb]:rounded-full
-        [&::-webkit-scrollbar-thumb]:bg-gray-300
-        [&::-webkit-scrollbar-track]:bg-transparent"
-        role="list"
-      >
-        {filtered.length === 0 && (
-          <li className="py-12 text-center text-sm text-gray-400">
-            <span className="block text-3xl mb-2">🔕</span>
-            Sin notificaciones en esta categoría
-          </li>
-        )}
+{/* ── Scrollable list ── */}
+<div className="flex-1 overflow-y-auto">
+  <ul
+    className="
+      p-2
+      space-y-1
+      [&::-webkit-scrollbar]:w-1.5
+      [&::-webkit-scrollbar-thumb]:rounded-full
+      [&::-webkit-scrollbar-thumb]:bg-gray-300
+      [&::-webkit-scrollbar-track]:bg-transparent
+    "
+    role="list"
+  >
+    {filtered.length === 0 && (
+      <li className="py-12 text-center text-sm text-gray-400">
+        <span className="block text-3xl mb-2">🔕</span>
+        Sin notificaciones en esta categoría
+      </li>
+    )}
 
-        {/* Nuevas */}
-        {unread.length > 0 && (
-          <>
-            <li className="px-3 pt-2 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Nuevas
-            </li>
-            {unread.map((n) => (
-              <NotifItem key={n.id} notificacion={n} onMarkRead={onMarkRead} />
-            ))}
-          </>
-        )}
+    {/* Nuevas */}
+    {unread.length > 0 && (
+      <>
+        <li className="px-3 pt-2 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+          Nuevas
+        </li>
 
-        {/* Anteriores */}
-        {read.length > 0 && (
-          <>
-            <li className="px-3 pt-3 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Anteriores
-            </li>
-            {read.map((n) => (
-              <NotifItem key={n.id} notificacion={n} onMarkRead={onMarkRead} />
-            ))}
-          </>
-        )}
-      </ul>
-    </div>
+        {unread.map((n) => (
+          <NotifItem
+            key={n.id}
+            notificacion={n}
+            onMarkRead={onMarkRead}
+          />
+        ))}
+      </>
+    )}
+
+    {/* Anteriores */}
+    {read.length > 0 && (
+      <>
+        <li className="px-3 pt-3 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+          Anteriores
+        </li>
+
+        {read.map((n) => (
+      <NotifItem
+        key={n.id}
+        notificacion={n}
+        onMarkRead={onMarkRead}
+      />
+    ))}
+  </>
+)}
+
+</ul>
+</div>
+
+</div>
+
   );
 }
-
-/* ────────────────────────────────────────────────
-   Tarjeta individual de notificación
-──────────────────────────────────────────────── */
+/*────────────────────────────
+Tarjeta individual
+────────────────────────────*/
 function NotifItem({
   notificacion: n,
   onMarkRead,
