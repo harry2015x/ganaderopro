@@ -84,10 +84,12 @@ export default function NotificationBell() {
         border
         z-[9999]
         origin-top-right
+        transition-all
+        duration-200
+        ease-out
         animate-in
         fade-in
-        zoom-in-95
-        duration-200">
+        zoom-in-95">
           <div className="p-4 space-y-3">
             {cargando && (
               <p className="text-center text-gray-500">
