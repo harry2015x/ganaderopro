@@ -166,7 +166,7 @@ export default function Sidebar() {
     h-screen
     flex
     flex-col
-    overflow-hidden
+    overflow-x-visible overflow-y-hidden
     bg-gradient-to-b
     from-green-950
     via-green-900
@@ -279,8 +279,7 @@ md:flex
         <nav
   className={`
     flex-1
-    overflow-y-auto
-    overflow-x-hidden
+    overflow-visible
     ${expandido ? "px-3" : "px-2"}
   `}
 >
