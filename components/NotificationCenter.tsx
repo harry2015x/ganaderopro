@@ -21,29 +21,29 @@ const priorityIcon: Record<string, string> = {
 
 const avatarBg: Record<string, string> = {
   critica: "bg-red-50",
-  alta:    "bg-orange-50",
-  media:   "bg-yellow-50",
-  baja:    "bg-green-50",
+  alta: "bg-orange-50",
+  media: "bg-yellow-50",
+  baja: "bg-green-50",
 };
 
 const dotBg: Record<string, string> = {
-  critica: "bg-red-600",
-  alta:    "bg-orange-500",
-  media:   "bg-yellow-500",
-  baja:    "bg-green-600",
+  critica: "bg-red-500",
+  alta: "bg-orange-400",
+  media: "bg-yellow-400",
+  baja: "bg-green-500",
 };
 
 const tagStyle: Record<string, string> = {
   critica: "bg-red-50 text-red-700",
-  alta:    "bg-orange-50 text-orange-700",
-  media:   "bg-yellow-50 text-yellow-700",
-  baja:    "bg-green-50 text-green-700",
+  alta: "bg-orange-50 text-orange-700",
+  media: "bg-yellow-50 text-yellow-700",
+  baja: "bg-green-50 text-green-700",
 };
 
 function timeAgo(dateStr: string): string {
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-  if (diff < 60)    return "Ahora";
-  if (diff < 3600)  return `${Math.floor(diff / 60)}m`;
+  if (diff < 60) return "Ahora";
+  if (diff < 3600) return `${Math.floor(diff / 60)}m`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
   return `${Math.floor(diff / 86400)}d`;
 }
@@ -56,56 +56,58 @@ export default function NotificationCenter({
   const [activeTab, setActiveTab] = useState<Tab>("todas");
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: "todas",     label: "Todas" },
+    { key: "todas", label: "Todas" },
     { key: "no_leidas", label: "No leídas" },
-    { key: "critica",   label: "Críticas" },
-    { key: "alta",      label: "Alta" },
+    { key: "critica", label: "Críticas" },
+    { key: "alta", label: "Alta" },
   ];
 
   const filtered = notificaciones.filter((n) => {
     if (activeTab === "no_leidas") return !n.leida;
-    if (activeTab === "critica")   return n.prioridad === "critica";
-    if (activeTab === "alta")      return n.prioridad === "alta";
+    if (activeTab === "critica") return n.prioridad === "critica";
+    if (activeTab === "alta") return n.prioridad === "alta";
     return true;
   });
 
   const unread = filtered.filter((n) => !n.leida);
-  const read   = filtered.filter((n) => n.leida);
+  const read = filtered.filter((n) => n.leida);
 
   return (
-    <div className="w-[420px] max-w-[95vw] h-[620px] rounded-2xl border border-gray-200 bg-white shadow-lg overflow-hidden flex flex-col font-sans">
+    <div className="w-[420px] max-w-[95vw] h-[650px] rounded-3xl bg-white shadow-2xl overflow-hidden flex flex-col font-sans">
 
       {/* ── Header ── */}
-      <div className="flex items-center justify-between px-5 pt-5 pb-2">
-        <h2 className="text-xl font-semibold text-gray-900">Notificaciones</h2>
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">
+        <h2 className="text-[22px] font-bold text-gray-900 tracking-tight">
+          Notificaciones
+        </h2>
+        <div className="flex items-center gap-1">
           {onMarkAllRead && (
             <button
               onClick={onMarkAllRead}
-              className="text-sm font-medium text-green-700 hover:bg-green-50 rounded-lg px-2 py-1 transition"
+              className="text-[13px] font-semibold text-green-700 hover:text-green-800 hover:bg-green-50 rounded-xl px-3 py-1.5 transition-all duration-200"
             >
               Marcar todo leído
             </button>
           )}
           <button
             aria-label="Configuración"
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition text-gray-600"
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-all duration-200 text-gray-500 text-base"
           >
             ⚙️
           </button>
         </div>
       </div>
 
-      {/* ── Tabs ── */}
-      <div className="flex gap-1 px-3 border-b border-gray-200">
+      {/* ── Tabs estilo Facebook ── */}
+      <div className="flex gap-1 px-3 pb-2 flex-shrink-0">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setActiveTab(t.key)}
-            className={`px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 transition ${
+            className={`px-3.5 py-1.5 text-[13px] font-semibold rounded-full transition-all duration-200 ${
               activeTab === t.key
-                ? "border-green-600 text-green-700 bg-transparent"
-                : "border-transparent text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                ? "bg-green-100 text-green-800"
+                : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
             }`}
           >
             {t.label}
@@ -113,79 +115,69 @@ export default function NotificationCenter({
         ))}
       </div>
 
-{/* ── Scrollable list ── */}
-<div className="flex-1 overflow-y-auto">
-  <ul
-    className="
-      p-2
-      space-y-1
-      [&::-webkit-scrollbar]:w-1.5
-      [&::-webkit-scrollbar-thumb]:rounded-full
-      [&::-webkit-scrollbar-thumb]:bg-gray-300
-      [&::-webkit-scrollbar-track]:bg-transparent
-    "
-    role="list"
-  >
-    {filtered.length === 0 && (
-      <li className="py-12 text-center text-sm text-gray-400">
-        <span className="block text-3xl mb-2">🔕</span>
-        Sin notificaciones en esta categoría
-      </li>
-    )}
+      {/* ── Separador ── */}
+      <div className="h-px bg-gray-100 flex-shrink-0" />
 
-    {/* Nuevas */}
-    {unread.length > 0 && (
-      <>
-        <li className="px-3 pt-2 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-          Nuevas
-        </li>
+      {/* ── Lista con scroll ── */}
+      <div
+        className="
+          flex-1 overflow-y-auto
+          [&::-webkit-scrollbar]:w-1.5
+          [&::-webkit-scrollbar-thumb]:rounded-full
+          [&::-webkit-scrollbar-thumb]:bg-gray-200
+          [&::-webkit-scrollbar-track]:bg-transparent
+        "
+      >
+        <ul className="py-1" role="list">
+          {filtered.length === 0 && (
+            <li className="py-14 text-center text-sm text-gray-400">
+              <span className="block text-4xl mb-3 opacity-60">🔕</span>
+              <span className="font-medium">Sin notificaciones en esta categoría</span>
+            </li>
+          )}
 
-        {unread.map((n) => (
-          <NotifItem
-            key={n.id}
-            notificacion={n}
-            onMarkRead={onMarkRead}
-          />
-        ))}
-      </>
-    )}
+          {/* Nuevas */}
+          {unread.length > 0 && (
+            <>
+              <li className="px-5 pt-3 pb-1.5 text-[11px] font-bold text-gray-500 uppercase tracking-widest">
+                Nuevas
+              </li>
+              {unread.map((n) => (
+                <NotifItem key={n.id} notificacion={n} onMarkRead={onMarkRead} />
+              ))}
+            </>
+          )}
 
-    {/* Anteriores */}
-    {read.length > 0 && (
-      <>
-        <li className="px-3 pt-3 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-          Anteriores
-        </li>
+          {/* Anteriores */}
+          {read.length > 0 && (
+            <>
+              <li className="px-5 pt-4 pb-1.5 text-[11px] font-bold text-gray-500 uppercase tracking-widest">
+                Anteriores
+              </li>
+              {read.map((n) => (
+                <NotifItem key={n.id} notificacion={n} onMarkRead={onMarkRead} />
+              ))}
+            </>
+          )}
+        </ul>
+      </div>
 
-        {read.map((n) => (
-      <NotifItem
-        key={n.id}
-        notificacion={n}
-        onMarkRead={onMarkRead}
-      />
-    ))}
-  </>
-)}
-
-</ul>
-</div>
-
-<div className="border-t border-gray-200 bg-white px-4 py-3">
-  <Link
-    href="/notificaciones"
-    className="flex items-center justify-center text-sm font-semibold text-green-700 hover:text-green-800 transition"
-  >
-    Ver todas las notificaciones →
-    </Link>
-</div>
-
-</div>
-
+      {/* ── Footer fijo ── */}
+      <div className="flex-shrink-0 border-t border-gray-100 bg-white">
+        <Link
+          href="/notificaciones"
+          className="flex items-center justify-center py-3 text-[13px] font-semibold text-green-700 hover:text-green-800 hover:bg-green-50 transition-all duration-200"
+        >
+          Ver todas las notificaciones →
+        </Link>
+      </div>
+    </div>
   );
 }
-/*────────────────────────────
-Tarjeta individual
-────────────────────────────*/
+
+/* ────────────────────────────
+   Elemento individual de lista
+   ──────────────────────────── */
 function NotifItem({
   notificacion: n,
   onMarkRead,
@@ -194,86 +186,64 @@ function NotifItem({
   onMarkRead?: (id: number | string) => void;
 }) {
   return (
-    <li role="listitem">
+    <li role="listitem" className="border-b border-gray-100 last:border-0">
       <Link
         href={n.url || "#"}
         onClick={() => onMarkRead?.(n.id)}
-        className={`flex items-start gap-3 px-3 py-2.5 rounded-xl transition group
-          ${n.leida
-            ? "hover:bg-gray-50"
-            : "bg-green-50/70 hover:bg-green-100/60"}`}
+        className={`flex items-start gap-3 px-4 py-2.5 transition-all duration-200 group
+          hover:bg-green-50 hover:translate-x-0.5
+          ${!n.leida ? "bg-green-50/40" : "bg-white"}`}
       >
         {/* Avatar + badge de prioridad */}
         <div className="relative flex-shrink-0 mt-0.5">
           <div
-            className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl
-              ${avatarBg[n.prioridad]}`}
+            className={`w-[42px] h-[42px] rounded-full flex items-center justify-center text-xl ${avatarBg[n.prioridad]}`}
             aria-hidden="true"
           >
             {n.icono}
           </div>
+          {/* Badge de prioridad: pequeño punto de color */}
           <span
-            className={`absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full
-              border-2 border-white flex items-center justify-center text-[10px]
-              ${dotBg[n.prioridad]}`}
+            className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white ${dotBg[n.prioridad]}`}
             aria-hidden="true"
-          >
-            {priorityIcon[n.prioridad]}
-          </span>
+          />
         </div>
 
         {/* Contenido */}
         <div className="flex-1 min-w-0">
           {/* Título */}
-          <p className="text-sm font-semibold text-gray-900 leading-snug">
+          <p className={`text-[13.5px] font-semibold leading-snug ${n.leida ? "text-gray-700" : "text-gray-900"}`}>
             {n.titulo}
           </p>
 
-          {/* Descripción recortada a 2 líneas */}
-          <p className="mt-0.5 text-xs text-gray-500 leading-relaxed line-clamp-2">
+          {/* Descripción */}
+          <p className="mt-0.5 text-[12.5px] text-gray-500 leading-relaxed line-clamp-2">
             {n.descripcion}
           </p>
 
           {/* Meta: tiempo · animal · arete */}
           <div className="mt-1 flex items-center gap-1.5 flex-wrap">
-            <span
-              className={`text-xs font-semibold ${
-                n.leida ? "text-gray-400 font-normal" : "text-green-700"
-              }`}
-            >
+            <span className={`text-[12px] font-semibold ${n.leida ? "text-gray-400" : "text-green-700"}`}>
               {timeAgo(n.fecha)}
             </span>
             <span className="text-gray-300 text-xs" aria-hidden="true">·</span>
-            <span className="text-xs text-gray-400">
+            <span className="text-[12px] text-gray-400">
               {n.animalNombre} · Arete {n.animalArete}
             </span>
           </div>
 
-          {/* Chip de prioridad */}
-          <span
-            className={`mt-1.5 inline-flex items-center gap-1 px-2 py-0.5
-              rounded-full text-[11px] font-semibold ${tagStyle[n.prioridad]}`}
-          >
-            {priorityIcon[n.prioridad]}
-            {n.prioridad.charAt(0).toUpperCase() + n.prioridad.slice(1)}
-          </span>
-
-          {/* Acción */}
+          {/* Acción como enlace, sin botón */}
           {n.accion && (
-            <div
-              className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5
-                rounded-lg bg-green-100 text-green-800 text-xs font-semibold
-                group-hover:bg-green-200 transition"
-            >
+            <span className="mt-1 inline-block text-[12.5px] font-semibold text-green-700 group-hover:underline transition-all duration-200">
               {n.accion} →
-            </div>
+            </span>
           )}
         </div>
 
-        {/* Punto azul de no leída */}
+        {/* Punto de no leída */}
         {!n.leida && (
           <span
-            className="mt-2 w-2.5 h-2.5 rounded-full bg-green-600 flex-shrink-0"
+            className="mt-2 w-2 h-2 rounded-full bg-green-600 flex-shrink-0 self-start"
             aria-label="No leída"
           />
         )}
