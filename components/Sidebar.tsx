@@ -125,21 +125,20 @@ export default function Sidebar() {
     }
 
     await supabase.auth.signOut();
-
     localStorage.removeItem("usuario");
-
     window.location.href = "/login";
   }
 
   return (
     <>
       {/* ── Botón hamburguesa (solo móvil) ── */}
+      {/* z-[60] para quedar siempre sobre el overlay y el aside */}
       {!mobileOpen && (
         <button
           onClick={() => setMobileOpen(true)}
           aria-label="Abrir menú"
           className="
-          fixed left-4 top-4 z-[10001]
+            fixed left-4 top-4 z-[60]
             flex h-10 w-10 items-center justify-center
             rounded-xl bg-green-950 text-white shadow-lg
             ring-1 ring-white/10
@@ -150,61 +149,61 @@ export default function Sidebar() {
         </button>
       )}
 
-      {/* ── Fondo oscuro al abrir el drawer en móvil ── */}
+      {/* ── Overlay oscuro (móvil) ── */}
+      {/* z-[40] — debajo del aside (z-[50]) pero encima del contenido */}
       {mobileOpen && (
         <div
           onClick={() => setMobileOpen(false)}
           aria-hidden="true"
-          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-[40] bg-black/50 backdrop-blur-sm md:hidden"
         />
       )}
 
-<aside
-  className={`
-    fixed inset-y-0 left-0 z-40 md:relative md:translate-x-0
-    ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
-    h-screen
-    flex
-    flex-col
-    overflow-x-visible overflow-y-hidden
-    bg-gradient-to-b
-    from-green-950
-    via-green-900
-    to-emerald-950
-    text-white
-    shadow-2xl
-    transition-all
-    duration-300
-    ease-in-out
-    ${expandido ? "w-[280px]" : "w-20"}
-  `}
->
-        {/* ── Botón colapsar (desktop / tablet) ── */}
+      {/* ── Aside principal ── */}
+      {/* z-[50] en móvil para quedar sobre el overlay */}
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-[50]
+          md:relative md:z-auto md:translate-x-0
+          ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+          h-screen
+          flex flex-col
+          bg-gradient-to-b from-green-950 via-green-900 to-emerald-950
+          text-white shadow-2xl
+          transition-all duration-300 ease-in-out
+          ${expandido ? "w-[280px]" : "w-20"}
+        `}
+      >
+        {/*
+          ── Botón colapsar (desktop) ──
+          Sacado del aside con portal-like trick:
+          position fixed en desktop para que nunca quede detrás del contenido.
+          Sigue siendo parte del aside en el DOM para conservar la lógica,
+          pero se posiciona de forma independiente en desktop.
+        */}
         <button
           onClick={() => setExpandido(!expandido)}
           title={expandido ? "Colapsar menú" : "Expandir menú"}
-          className="
-absolute
--right-4
-top-6
-z-[99999]
-hidden
-h-8
-w-8
-items-center
-justify-center
-rounded-full
-bg-emerald-500
-text-white
-shadow-xl
-ring-2
-ring-green-950
-transition
-hover:bg-emerald-400
-md:flex
-"
+          style={{
+            // En desktop: fixed para garantizar que quede siempre encima
+            // La posición left se calcula dinámicamente según el ancho del sidebar
+          }}
+          className={`
+            fixed top-6 z-[9999]
+            hidden md:flex
+            h-8 w-8 items-center justify-center
+            rounded-full bg-emerald-500 text-white
+            shadow-xl ring-2 ring-green-950
+            transition-all duration-300 ease-in-out
+            hover:bg-emerald-400 hover:scale-110
+            ${expandido ? "left-[264px]" : "left-[64px]"}
+          `}
         >
-          {expandido ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          {expandido ? (
+            <ChevronLeft className="h-4 w-4" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
         </button>
 
         {/* ── Botón cerrar (solo móvil) ── */}
@@ -225,9 +224,8 @@ md:flex
         {/* ── Logo ── */}
         <div
           className={`
-            flex items-center gap-3 px-4 pt-6 pb-5
-            overflow-hidden
-            ${!expandido && "justify-center px-0"}
+            flex items-center gap-3 px-4 pt-6 pb-5 overflow-hidden
+            ${!expandido ? "justify-center px-0" : ""}
           `}
         >
           <div className="flex-shrink-0 flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-2xl backdrop-blur-sm ring-1 ring-white/10">
@@ -277,12 +275,11 @@ md:flex
 
         {/* ── Navegación ── */}
         <nav
-  className={`
-    flex-1
-    overflow-visible
-    ${expandido ? "px-3" : "px-2"}
-  `}
->
+          className={`
+            flex-1 overflow-y-auto overflow-x-visible
+            ${expandido ? "px-3" : "px-2"}
+          `}
+        >
           {navGroups.map((group) => {
             const itemsVisibles = group.items.filter(
               (item) => !item.soloAdmin || rol === "admin"
@@ -363,7 +360,7 @@ md:flex
                         {!expandido && (
                           <span
                             className="
-                              pointer-events-none absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2
+                              pointer-events-none absolute left-full top-1/2 z-[9999] ml-3 -translate-y-1/2
                               whitespace-nowrap rounded-lg bg-green-950 px-2.5 py-1.5
                               text-xs font-medium text-white shadow-lg ring-1 ring-white/10
                               opacity-0 invisible
@@ -385,21 +382,18 @@ md:flex
 
         {/* ── Footer ── */}
         <div className="
-flex-shrink-0
-border-t
-border-white/10
-bg-green-950
-px-3
-pt-4
-pb-5
-">
+          flex-shrink-0
+          border-t border-white/10
+          bg-green-950
+          px-3 pt-4 pb-5
+        ">
           <button
             onClick={cerrarSesion}
             title="Cerrar sesión"
-            className={`
+            className="
               w-full bg-red-600/90 hover:bg-red-600 text-white text-sm font-semibold
               py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2
-            `}
+            "
           >
             <LogOut className="h-4 w-4" strokeWidth={2.5} />
             {expandido && "Cerrar sesión"}
