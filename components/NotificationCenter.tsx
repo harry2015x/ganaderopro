@@ -73,7 +73,15 @@ export default function NotificationCenter({
   const read = filtered.filter((n) => n.leida);
 
   return (
-    <div className="w-[420px] max-w-[95vw] h-[650px] bg-white flex flex-col font-sans">
+    <div className=" w-[420px]
+    max-w-[95vw]
+    h-[650px]
+    bg-white
+    rounded-2xl
+    shadow-[0_10px_35px_rgba(0,0,0,0.12)]
+    flex
+    flex-col
+    font-sans">
 
       {/* ── Header ── */}
       <div className="flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">
