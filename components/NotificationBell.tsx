@@ -2,7 +2,6 @@
 
 import { Bell } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useNotificaciones } from "@/hooks/useNotificaciones";
 import NotificationCenter from "./NotificationCenter";
 
@@ -10,7 +9,6 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Asignamos [] y 0 como valores por defecto por si el hook aún no tiene los datos listos
   const {
     notificaciones = [],
     cantidadNoLeidas = 0,
@@ -18,43 +16,20 @@ export default function NotificationBell() {
   } = useNotificaciones();
 
   useEffect(() => {
-
     function handleClickOutside(event: MouseEvent) {
-  
       if (
-  
         panelRef.current &&
-  
         !panelRef.current.contains(event.target as Node)
-  
       ) {
-  
         setOpen(false);
-  
       }
-  
     }
-  
-    document.addEventListener(
-  
-      "mousedown",
-  
-      handleClickOutside
-  
-    );
-  
+
+    document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
-  
-      document.removeEventListener(
-  
-        "mousedown",
-  
-        handleClickOutside
-  
-      );
-  
+      document.removeEventListener("mousedown", handleClickOutside);
     };
-  
   }, []);
 
   return (
@@ -73,42 +48,21 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute
-        right-0
-        mt-2
-        w-[420px]
-        max-w-[95vw]
-        bg-white
-        z-[9999]">
-          <div className="p-4 space-y-3">
-            {cargando && (
+        <div className="absolute right-0 mt-2 z-[9999]">
+
+          {cargando ? (
+            <div className="bg-white rounded-2xl p-8 shadow-xl">
               <p className="text-center text-gray-500">
                 Cargando...
               </p>
-            )}
-
-            {/* Agregamos el Optional Chaining (?.) por seguridad extra */}
-            {!cargando && notificaciones?.length === 0 && (
-              <p className="text-center text-gray-500">
-                No hay notificaciones.
-              </p>
-            )}
-
-            {/* Agregamos ?.map para asegurarnos de que solo itere si es un array válido */}
+            </div>
+          ) : (
             <NotificationCenter
-  notificaciones={notificaciones}
-  onMarkRead={() => setOpen(false)}
-/>
-          </div>
+              notificaciones={notificaciones}
+              onMarkRead={() => setOpen(false)}
+            />
+          )}
 
-          <div className="p-4 border-t">
-            <Link
-              href="/notifications"
-              className="text-green-700 font-semibold"
-            >
-              Ver todas →
-            </Link>
-          </div>
         </div>
       )}
     </div>
