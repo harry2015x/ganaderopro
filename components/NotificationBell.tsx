@@ -32,7 +32,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-[420px] max-w-[95vw] rounded-2xl bg-white shadow-2xl border z-[9999]">
+        <div className="absolute right-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl border z-50">
           <div className="p-4 space-y-3">
             {cargando && (
               <p className="text-center text-gray-500">

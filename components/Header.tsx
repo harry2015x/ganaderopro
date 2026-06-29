@@ -5,7 +5,19 @@ import NotificationBell from "./NotificationBell";
 
 export default function Header() {
   return (
-    <header className="w-full bg-white/80 backdrop-blur border-b border-green-100 px-6 py-4 flex items-center justify-between">
+    <header className=" relative
+    z-[1000]
+    w-full
+    bg-white/80
+    backdrop-blur
+    border-b
+    border-green-100
+    px-6
+    py-4
+    flex
+    items-center
+    justify-between
+    isolate">
       <div>
         <h1 className="text-3xl font-bold text-green-700">
           GanaderoPro
