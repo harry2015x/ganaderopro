@@ -278,6 +278,12 @@ export default function Sidebar() {
           className={`
             flex-1 overflow-y-auto overflow-x-visible
             ${expandido ? "px-3" : "px-2"}
+            [&::-webkit-scrollbar]:w-[3px]
+            [&::-webkit-scrollbar-track]:bg-transparent
+            [&::-webkit-scrollbar-thumb]:rounded-full
+            [&::-webkit-scrollbar-thumb]:bg-emerald-600/40
+            [&::-webkit-scrollbar-thumb]:hover:bg-emerald-400/70
+            scrollbar-thin
           `}
         >
           {navGroups.map((group) => {
