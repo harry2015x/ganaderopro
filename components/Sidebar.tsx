@@ -139,7 +139,7 @@ export default function Sidebar() {
           onClick={() => setMobileOpen(true)}
           aria-label="Abrir menú"
           className="
-            fixed left-4 top-4 z-30
+          fixed left-4 top-4 z-[10001]
             flex h-10 w-10 items-center justify-center
             rounded-xl bg-green-950 text-white shadow-lg
             ring-1 ring-white/10
@@ -159,23 +159,32 @@ export default function Sidebar() {
         />
       )}
 
-      <aside
-        className={`
-          fixed inset-y-0 left-0 z-40 md:relative md:translate-x-0
-          ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
-          min-h-screen flex flex-col
-          bg-gradient-to-b from-green-950 via-green-900 to-emerald-950
-          text-white shadow-2xl
-          transition-all duration-300 ease-in-out
-          ${expandido ? "w-[280px]" : "w-20"}
-        `}
-      >
+<aside
+  className={`
+    fixed inset-y-0 left-0 z-40 md:relative md:translate-x-0
+    ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+    h-screen
+    flex
+    flex-col
+    overflow-hidden
+    bg-gradient-to-b
+    from-green-950
+    via-green-900
+    to-emerald-950
+    text-white
+    shadow-2xl
+    transition-all
+    duration-300
+    ease-in-out
+    ${expandido ? "w-[280px]" : "w-20"}
+  `}
+>
         {/* ── Botón colapsar (desktop / tablet) ── */}
         <button
           onClick={() => setExpandido(!expandido)}
           title={expandido ? "Colapsar menú" : "Expandir menú"}
           className="
-            absolute -right-3.5 top-6 z-10
+            absolute -right-3.5 top-6 z-[10001]
             hidden h-7 w-7 items-center justify-center
             rounded-full bg-emerald-500 shadow-lg
             text-white
@@ -256,7 +265,14 @@ export default function Sidebar() {
         </div>
 
         {/* ── Navegación ── */}
-        <nav className={`flex-1 overflow-y-auto ${expandido ? "px-3" : "px-2"}`}>
+        <nav
+  className={`
+    flex-1
+    overflow-y-auto
+    overflow-x-hidden
+    ${expandido ? "px-3" : "px-2"}
+  `}
+>
           {navGroups.map((group) => {
             const itemsVisibles = group.items.filter(
               (item) => !item.soloAdmin || rol === "admin"
@@ -358,7 +374,15 @@ export default function Sidebar() {
         </nav>
 
         {/* ── Footer ── */}
-        <div className="mt-auto pt-4 pb-5 border-t border-white/10 px-3">
+        <div className="
+flex-shrink-0
+border-t
+border-white/10
+bg-green-950
+px-3
+pt-4
+pb-5
+">
           <button
             onClick={cerrarSesion}
             title="Cerrar sesión"
