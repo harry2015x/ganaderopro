@@ -170,6 +170,15 @@ export default function NotificationCenter({
 </ul>
 </div>
 
+<div className="border-t border-gray-200 bg-white px-4 py-3">
+  <Link
+    href="/notificaciones"
+    className="flex items-center justify-center text-sm font-semibold text-green-700 hover:text-green-800 transition"
+  >
+    Ver todas las notificaciones →
+    </Link>
+</div>
+
 </div>
 
   );
