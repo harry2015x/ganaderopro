@@ -143,7 +143,7 @@ if (usuarioError || !usuario) {
       onPointerMove={handlePointerMove}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
-      className="relative min-h-screen w-full overflow-hidden bg-[#06140D] flex items-center justify-center"
+      className="relative h-screen w-screen overflow-hidden bg-[#06140D] flex items-center justify-center"
       style={
         {
           "--mx": `${pointer.x}%`,
@@ -241,7 +241,7 @@ if (usuarioError || !usuario) {
       {/* ---------- Login glass panel ---------- */}
       <form
         onSubmit={handleSubmit}
-        className="relative z-10 w-[92%] max-w-[400px] mx-4 rounded-[30px] border border-white/15 bg-white/[0.08] backdrop-blur-[36px] shadow-[0_8px_40px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.25),inset_0_-1px_0_rgba(255,255,255,0.05)] px-8 py-10 sm:px-10 sm:py-12"
+        className="relative z-10 w-[92%] max-w-[400px] rounded-[30px] border border-white/15 bg-white/[0.08] backdrop-blur-[36px] shadow-[0_8px_40px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.25),inset_0_-1px_0_rgba(255,255,255,0.05)] px-8 py-10 sm:px-10 sm:py-12"
         style={{
           backgroundImage:
             "linear-gradient(135deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 45%, rgba(255,255,255,0.08) 100%)",
