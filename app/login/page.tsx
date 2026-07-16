@@ -143,7 +143,7 @@ if (usuarioError || !usuario) {
       onPointerMove={handlePointerMove}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
-      className="relative h-screen w-screen overflow-hidden bg-[#06140D] flex items-center justify-center"
+      className="fixed inset-0 overflow-hidden bg-[#06140D] flex items-center justify-center"
       style={
         {
           "--mx": `${pointer.x}%`,
@@ -259,7 +259,7 @@ if (usuarioError || !usuario) {
 
         {/* Brand */}
         <div className="relative mb-9 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-emerald-400/10 shadow-[0_0_24px_rgba(74,222,128,0.35)]">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-300/20 bg-emerald-400/10 shadow-[0_0_24px_rgba(74,222,128,0.35)]">
             <LeafMark />
           </div>
           <h1 className="text-[26px] font-semibold tracking-tight text-white">
