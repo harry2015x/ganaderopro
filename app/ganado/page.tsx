@@ -491,11 +491,21 @@ export default function GanadoPage() {
                   {animalesFiltrados.map((animal) => (
                     <tr key={animal.id} className="hover:bg-green-50/60 transition-colors">
                       <td className="p-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-semibold">
-                          {animal.arete}
-                        </span>
+                      <Link
+  href={`/ganado/${animal.id}`}
+  className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-semibold hover:bg-green-200 transition"
+>
+  {animal.arete}
+</Link>
                       </td>
-                      <td className="p-4 font-medium text-gray-800">{animal.nombre}</td>
+                      <td className="p-4">
+  <Link
+    href={`/ganado/${animal.id}`}
+    className="font-semibold text-green-700 hover:text-green-900 hover:underline transition-colors"
+  >
+    {animal.nombre}
+  </Link>
+</td>
                       <td className="p-4 text-gray-600">{animal.raza}</td>
                       <td className="p-4 text-gray-800 font-semibold">{animal.peso} kg</td>
 
