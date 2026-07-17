@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import AuthGuard from "../../components/AuthGuard";
 import { obtenerRolUsuario } from "../../lib/auth";
@@ -10,7 +10,8 @@ import { saveAs } from "file-saver";
 import { Plus, FileSpreadsheet, FileText } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { useSearchParams } from "next/navigation";
+
+type Sexo = "Macho" | "Hembra";
 
 type Animal = {
   id?: number;
@@ -19,8 +20,27 @@ type Animal = {
   raza: string;
   peso: number;
   fecha_nacimiento?: string;
-  sexo?: string;
+  sexo?: Sexo;
 };
+
+type UsuarioSesion = {
+  id: number | string;
+  nombre: string;
+};
+
+type TipoExportacion = "excel" | "pdf" | null;
+
+function obtenerUsuarioActual(): UsuarioSesion | null {
+  const usuarioGuardado = localStorage.getItem("usuario");
+  if (!usuarioGuardado) return null;
+
+  try {
+    return JSON.parse(usuarioGuardado) as UsuarioSesion;
+  } catch (error) {
+    console.error("Error al leer el usuario de la sesión:", error);
+    return null;
+  }
+}
 
 export default function GanadoPage() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -31,7 +51,7 @@ export default function GanadoPage() {
   const [raza, setRaza] = useState("");
   const [peso, setPeso] = useState("");
   const [fecha, setFecha] = useState("");
-  const [sexo, setSexo] = useState("Macho");
+  const [sexo, setSexo] = useState<Sexo>("Macho");
 
   // Guarda el ID real del animal en edición (NO la posición en el array)
   const [editandoId, setEditandoId] = useState<number | null>(null);
@@ -40,6 +60,11 @@ export default function GanadoPage() {
   const [busqueda, setBusqueda] = useState("");
 
   const [animales, setAnimales] = useState<Animal[]>([]);
+
+  const [cargando, setCargando] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+  const [eliminandoId, setEliminandoId] = useState<number | null>(null);
+  const [exportando, setExportando] = useState<TipoExportacion>(null);
 
   useEffect(() => {
     cargarAnimales();
@@ -52,92 +77,129 @@ export default function GanadoPage() {
   }
 
   async function cargarAnimales() {
-    const { data, error } = await supabase.from("animales").select("*");
+    setCargando(true);
+    try {
+      const { data, error } = await supabase
+        .from("animales")
+        .select("id, arete, nombre, raza, peso, fecha_nacimiento, sexo");
 
-    if (error) {
-      console.log(error);
-      return;
+      if (error) {
+        console.error(error);
+        alert("No se pudo cargar el inventario ganadero.");
+        return;
+      }
+
+      setAnimales(data || []);
+    } catch (error) {
+      console.error(error);
+      alert("Ocurrió un error al cargar el inventario ganadero.");
+    } finally {
+      setCargando(false);
     }
-
-    setAnimales(data || []);
   }
 
   async function exportarExcel() {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Ganado");
+    if (exportando) return;
 
-    worksheet.columns = [
-      { header: "Arete", key: "arete", width: 20 },
-      { header: "Nombre", key: "nombre", width: 25 },
-      { header: "Raza", key: "raza", width: 25 },
-      { header: "Peso", key: "peso", width: 15 },
-    ];
+    if (animales.length === 0) {
+      alert("No hay animales registrados para exportar.");
+      return;
+    }
 
-    animales.forEach((animal) => {
-      worksheet.addRow({
-        arete: animal.arete,
-        nombre: animal.nombre,
-        raza: animal.raza,
-        peso: animal.peso,
+    setExportando("excel");
+
+    try {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Ganado");
+
+      worksheet.columns = [
+        { header: "Arete", key: "arete", width: 20 },
+        { header: "Nombre", key: "nombre", width: 25 },
+        { header: "Raza", key: "raza", width: 25 },
+        { header: "Peso", key: "peso", width: 15 },
+      ];
+
+      animales.forEach((animal) => {
+        worksheet.addRow({
+          arete: animal.arete,
+          nombre: animal.nombre,
+          raza: animal.raza,
+          peso: animal.peso,
+        });
       });
-    });
 
-    const buffer = await workbook.xlsx.writeBuffer();
+      const buffer = await workbook.xlsx.writeBuffer();
 
-    saveAs(
-      new Blob([buffer]),
-      `Inventario_Ganadero_${new Date().toISOString().slice(0, 10)}.xlsx`
-    );
-
-    const usuarioGuardado = localStorage.getItem("usuario");
-
-    if (usuarioGuardado) {
-      const usuario = JSON.parse(usuarioGuardado);
-
-      await registrarAuditoria(
-        usuario.id,
-        usuario.nombre,
-        "EXPORTAR_EXCEL",
-        "GANADO",
-        "Usuario exportó inventario ganadero"
+      saveAs(
+        new Blob([buffer]),
+        `Inventario_Ganadero_${new Date().toISOString().slice(0, 10)}.xlsx`
       );
+
+      const usuario = obtenerUsuarioActual();
+      if (usuario) {
+        await registrarAuditoria(
+          String(usuario.id),
+          usuario.nombre,
+          "EXPORTAR_EXCEL",
+          "GANADO",
+          "Usuario exportó inventario ganadero"
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Ocurrió un error al exportar el inventario a Excel.");
+    } finally {
+      setExportando(null);
     }
   }
 
   async function exportarPDF() {
-    const doc = new jsPDF();
+    if (exportando) return;
 
-    doc.setFontSize(20);
-    doc.text("GanaderoPro", 14, 20);
+    if (animales.length === 0) {
+      alert("No hay animales registrados para exportar.");
+      return;
+    }
 
-    doc.setFontSize(12);
-    doc.text(`Inventario Ganadero - ${new Date().toLocaleDateString()}`, 14, 30);
+    setExportando("pdf");
 
-    autoTable(doc, {
-      startY: 40,
-      head: [["Arete", "Nombre", "Raza", "Peso"]],
-      body: animales.map((animal) => [
-        animal.arete,
-        animal.nombre,
-        animal.raza,
-        `${animal.peso} kg`,
-      ]),
-    });
+    try {
+      const doc = new jsPDF();
 
-    doc.save(`Inventario_Ganadero_${new Date().toISOString().slice(0, 10)}.pdf`);
+      doc.setFontSize(20);
+      doc.text("GanaderoPro", 14, 20);
 
-    const usuarioGuardado = localStorage.getItem("usuario");
+      doc.setFontSize(12);
+      doc.text(`Inventario Ganadero - ${new Date().toLocaleDateString()}`, 14, 30);
 
-    if (usuarioGuardado) {
-      const usuario = JSON.parse(usuarioGuardado);
+      autoTable(doc, {
+        startY: 40,
+        head: [["Arete", "Nombre", "Raza", "Peso"]],
+        body: animales.map((animal) => [
+          animal.arete,
+          animal.nombre,
+          animal.raza,
+          `${animal.peso} kg`,
+        ]),
+      });
 
-      await registrarAuditoria(
-        usuario.id,
-        usuario.nombre,
-        "EXPORTAR_PDF",
-        "GANADO",
-        "Usuario exportó inventario ganadero en PDF"
-      );
+      doc.save(`Inventario_Ganadero_${new Date().toISOString().slice(0, 10)}.pdf`);
+
+      const usuario = obtenerUsuarioActual();
+      if (usuario) {
+        await registrarAuditoria(
+          String(usuario.id),
+          usuario.nombre,
+          "EXPORTAR_PDF",
+          "GANADO",
+          "Usuario exportó inventario ganadero en PDF"
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Ocurrió un error al exportar el inventario a PDF.");
+    } finally {
+      setExportando(null);
     }
   }
 
@@ -157,6 +219,8 @@ export default function GanadoPage() {
   }
 
   function alternarFormulario() {
+    if (guardando) return;
+
     if (mostrarFormulario) {
       cerrarFormulario();
     } else {
@@ -164,82 +228,122 @@ export default function GanadoPage() {
     }
   }
 
+  function validarFormulario(): string | null {
+    if (!arete.trim()) return "El número de arete es obligatorio.";
+    if (!nombre.trim()) return "El nombre es obligatorio.";
+    if (!raza.trim()) return "La raza es obligatoria.";
+    if (!peso.trim()) return "El peso es obligatorio.";
+
+    const pesoNumerico = Number(peso);
+    if (Number.isNaN(pesoNumerico) || pesoNumerico <= 0) {
+      return "El peso debe ser un número mayor a 0.";
+    }
+
+    const areteNormalizado = arete.trim().toLowerCase();
+    const areteDuplicado = animales.some(
+      (animal) =>
+        (animal.arete ?? "").trim().toLowerCase() === areteNormalizado &&
+        animal.id !== editandoId
+    );
+    if (areteDuplicado) {
+      return "Ya existe un animal registrado con ese número de arete.";
+    }
+
+    return null;
+  }
+
   async function guardarAnimal() {
+    if (guardando) return;
+
+    if (rol === "visualizador") {
+      alert("No tiene permisos para realizar esta acción.");
+      return;
+    }
+
     if (editandoId !== null && rol !== "admin") {
       alert("Solo el administrador puede editar animales");
       return;
     }
 
-    if (editandoId !== null) {
-      const { error } = await supabase
-        .from("animales")
-        .update({
-          arete,
-          nombre,
-          raza,
-          peso: Number(peso),
-          fecha_nacimiento: fecha,
-          sexo,
-        })
-        .eq("id", editandoId);
+    const errorValidacion = validarFormulario();
+    if (errorValidacion) {
+      alert(errorValidacion);
+      return;
+    }
+
+    setGuardando(true);
+
+    try {
+      if (editandoId !== null) {
+        const { error } = await supabase
+          .from("animales")
+          .update({
+            arete: arete.trim(),
+            nombre: nombre.trim(),
+            raza: raza.trim(),
+            peso: Number(peso),
+            fecha_nacimiento: fecha,
+            sexo,
+          })
+          .eq("id", editandoId);
+
+        if (error) {
+          alert(error.message);
+          return;
+        }
+
+        const usuario = obtenerUsuarioActual();
+        if (usuario) {
+          await registrarAuditoria(
+            String(usuario.id),
+            usuario.nombre,
+            "EDITAR_ANIMAL",
+            "GANADO",
+            `Animal editado - Arete ${arete.trim()}`
+          );
+        }
+
+        await cargarAnimales();
+        cerrarFormulario();
+        return;
+      }
+
+      const nuevoAnimal = {
+        arete: arete.trim(),
+        nombre: nombre.trim(),
+        raza: raza.trim(),
+        peso: Number(peso),
+        fecha_nacimiento: fecha,
+        sexo,
+      };
+
+      const { error } = await supabase.from("animales").insert([nuevoAnimal]);
 
       if (error) {
+        console.error(error);
         alert(error.message);
         return;
       }
 
-      const usuarioGuardado = localStorage.getItem("usuario");
-
-      if (usuarioGuardado) {
-        const usuarioActual = JSON.parse(usuarioGuardado);
-
+      const usuario = obtenerUsuarioActual();
+      if (usuario) {
         await registrarAuditoria(
-          usuarioActual.id,
-          usuarioActual.nombre,
-          "EDITAR_ANIMAL",
+          String(usuario.id),
+          usuario.nombre,
+          "CREAR_ANIMAL",
           "GANADO",
-          `Animal editado - Arete ${arete}`
+          `Animal creado - Arete ${arete.trim()}`
         );
       }
 
       await cargarAnimales();
       cerrarFormulario();
-      return;
+    } catch (error) {
+      console.error(error);
+      alert("Ocurrió un error al guardar el animal.");
+    } finally {
+      setGuardando(false);
     }
-
-    const nuevoAnimal = {
-      arete,
-      nombre,
-      raza,
-      peso: Number(peso),
-      fecha_nacimiento: fecha,
-      sexo,
-    };
-
-    const { error } = await supabase.from("animales").insert([nuevoAnimal]);
-
-    if (error) {
-      console.log(error);
-      alert(error.message);
-      return;
-    }
-
-    const usuarioGuardado = localStorage.getItem("usuario");
-
-    if (usuarioGuardado) {
-      const usuario = JSON.parse(usuarioGuardado);
-
-      await registrarAuditoria(
-        usuario.id,
-        usuario.nombre,
-        "CREAR_ANIMAL",
-        "GANADO",
-        `Animal creado - Arete ${arete}`
-      );
-    }
-
-    await cargarAnimales();
-    cerrarFormulario();
   }
 
   async function eliminarAnimal(id: number) {
@@ -248,6 +352,8 @@ export default function GanadoPage() {
       return;
     }
 
+    if (eliminandoId !== null) return;
+
     if (!confirm("¿Está seguro de eliminar este animal?")) {
       return;
     }
@@ -255,31 +361,39 @@ export default function GanadoPage() {
     const animal = animales.find((a) => a.id === id);
     if (!animal) return;
 
-    const { error } = await supabase.from("animales").delete().eq("id", id);
+    setEliminandoId(id);
 
-    if (error) {
-      alert(error.message);
-      return;
+    try {
+      const { error } = await supabase.from("animales").delete().eq("id", id);
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      const usuario = obtenerUsuarioActual();
+      if (usuario) {
+        await registrarAuditoria(
+          String(usuario.id),
+          usuario.nombre,
+          "ELIMINAR_ANIMAL",
+          "GANADO",
+          `Animal eliminado - Arete ${animal.arete}`
+        );
+      }
+
+      await cargarAnimales();
+    } catch (error) {
+      console.error(error);
+      alert("Ocurrió un error al eliminar el animal.");
+    } finally {
+      setEliminandoId(null);
     }
-
-    const usuarioGuardado = localStorage.getItem("usuario");
-
-    if (usuarioGuardado) {
-      const usuarioActual = JSON.parse(usuarioGuardado);
-
-      await registrarAuditoria(
-        usuarioActual.id,
-        usuarioActual.nombre,
-        "ELIMINAR_ANIMAL",
-        "GANADO",
-        `Animal eliminado - Arete ${animal.arete}`
-      );
-    }
-
-    await cargarAnimales();
   }
 
   function editarAnimal(id: number) {
+    if (rol !== "admin") return;
+
     const animal = animales.find((a) => a.id === id);
     if (!animal) return;
 
@@ -295,11 +409,16 @@ export default function GanadoPage() {
     setMostrarFormulario(true);
   }
 
-  const animalesFiltrados = animales.filter(
-    (animal) =>
-      (animal.arete ?? "").toLowerCase().includes(busqueda.toLowerCase()) ||
-      (animal.nombre ?? "").toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const animalesFiltrados = useMemo(() => {
+    const termino = busqueda.trim().toLowerCase();
+    if (!termino) return animales;
+
+    return animales.filter(
+      (animal) =>
+        (animal.arete ?? "").toLowerCase().includes(termino) ||
+        (animal.nombre ?? "").toLowerCase().includes(termino)
+    );
+  }, [animales, busqueda]);
 
   return (
     <AuthGuard>
@@ -318,16 +437,21 @@ export default function GanadoPage() {
                 Inventario Ganadero
               </h1>
               <p className="text-gray-500 mt-1">
-                {animales.length}{" "}
-                {animales.length === 1 ? "animal registrado" : "animales registrados"}
+                {cargando
+                  ? "Cargando inventario..."
+                  : `${animales.length} ${
+                      animales.length === 1 ? "animal registrado" : "animales registrados"
+                    }`}
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
               {rol !== "visualizador" && (
                 <button
+                  type="button"
                   onClick={alternarFormulario}
-                  className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 active:from-green-800 active:to-emerald-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-green-900/20 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transition-all duration-200"
+                  disabled={guardando}
+                  className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 active:from-green-800 active:to-emerald-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-green-900/20 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                 >
                   <Plus className="w-4 h-4" strokeWidth={2.5} />
                   {mostrarFormulario ? "Cancelar registro" : "Registrar Animal"}
@@ -335,31 +459,39 @@ export default function GanadoPage() {
               )}
 
               <button
+                type="button"
                 onClick={exportarExcel}
-                className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-blue-900/20 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-all duration-200"
+                disabled={exportando !== null}
+                className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-blue-900/20 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               >
                 <FileSpreadsheet className="w-4 h-4" strokeWidth={2.5} />
-                Exportar Excel
+                {exportando === "excel" ? "Exportando..." : "Exportar Excel"}
               </button>
 
               <button
+                type="button"
                 onClick={exportarPDF}
-                className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-red-900/20 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 transition-all duration-200"
+                disabled={exportando !== null}
+                className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-red-900/20 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               >
                 <FileText className="w-4 h-4" strokeWidth={2.5} />
-                Exportar PDF
+                {exportando === "pdf" ? "Exportando..." : "Exportar PDF"}
               </button>
             </div>
           </div>
 
           {/* Buscador */}
           <div className="mb-6 relative max-w-md">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+            >
               🔍
             </span>
             <input
               type="text"
               placeholder="Buscar por arete o nombre"
+              aria-label="Buscar por arete o nombre"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               className="w-full border border-gray-200 bg-white/80 backdrop-blur-sm pl-11 pr-4 py-3 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
@@ -383,7 +515,8 @@ export default function GanadoPage() {
                     placeholder="Ej: 0234"
                     value={arete}
                     onChange={(e) => setArete(e.target.value)}
-                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    disabled={guardando}
+                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
                   />
                 </div>
 
@@ -396,7 +529,8 @@ export default function GanadoPage() {
                     placeholder="Ej: Lucero"
                     value={nombre}
                     onChange={(e) => setNombre(e.target.value)}
-                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    disabled={guardando}
+                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
                   />
                 </div>
 
@@ -409,7 +543,8 @@ export default function GanadoPage() {
                     placeholder="Ej: Brahman"
                     value={raza}
                     onChange={(e) => setRaza(e.target.value)}
-                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    disabled={guardando}
+                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
                   />
                 </div>
 
@@ -422,7 +557,10 @@ export default function GanadoPage() {
                     placeholder="Ej: 320"
                     value={peso}
                     onChange={(e) => setPeso(e.target.value)}
-                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    min="0"
+                    step="0.01"
+                    disabled={guardando}
+                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
                   />
                 </div>
 
@@ -434,7 +572,8 @@ export default function GanadoPage() {
                     type="date"
                     value={fecha}
                     onChange={(e) => setFecha(e.target.value)}
-                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    disabled={guardando}
+                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
                   />
                 </div>
 
@@ -444,8 +583,9 @@ export default function GanadoPage() {
                   </label>
                   <select
                     value={sexo}
-                    onChange={(e) => setSexo(e.target.value)}
-                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                    onChange={(e) => setSexo(e.target.value as Sexo)}
+                    disabled={guardando}
+                    className="w-full border border-gray-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-100"
                   >
                     <option value="Macho">Macho</option>
                     <option value="Hembra">Hembra</option>
@@ -455,15 +595,25 @@ export default function GanadoPage() {
 
               <div className="flex gap-3 mt-5">
                 <button
+                  type="button"
                   onClick={guardarAnimal}
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md shadow-green-900/20 hover:shadow-lg transition-all"
+                  disabled={guardando}
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md shadow-green-900/20 hover:shadow-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {editandoId !== null ? "Actualizar Animal" : "Guardar Animal"}
+                  {editandoId !== null
+                    ? guardando
+                      ? "Actualizando..."
+                      : "Actualizar Animal"
+                    : guardando
+                    ? "Guardando..."
+                    : "Guardar Animal"}
                 </button>
 
                 <button
+                  type="button"
                   onClick={cerrarFormulario}
-                  className="px-6 py-3 rounded-xl font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
+                  disabled={guardando}
+                  className="px-6 py-3 rounded-xl font-semibold text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   Cancelar
                 </button>
@@ -477,75 +627,104 @@ export default function GanadoPage() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="bg-gradient-to-r from-green-700 to-emerald-700 text-white">
-                    <th className="p-4 font-semibold text-sm uppercase tracking-wide">Arete</th>
-                    <th className="p-4 font-semibold text-sm uppercase tracking-wide">Nombre</th>
-                    <th className="p-4 font-semibold text-sm uppercase tracking-wide">Raza</th>
-                    <th className="p-4 font-semibold text-sm uppercase tracking-wide">Peso</th>
-                    <th className="p-4 font-semibold text-sm uppercase tracking-wide text-center">
+                    <th scope="col" className="p-4 font-semibold text-sm uppercase tracking-wide">
+                      Arete
+                    </th>
+                    <th scope="col" className="p-4 font-semibold text-sm uppercase tracking-wide">
+                      Nombre
+                    </th>
+                    <th scope="col" className="p-4 font-semibold text-sm uppercase tracking-wide">
+                      Raza
+                    </th>
+                    <th scope="col" className="p-4 font-semibold text-sm uppercase tracking-wide">
+                      Peso
+                    </th>
+                    <th
+                      scope="col"
+                      className="p-4 font-semibold text-sm uppercase tracking-wide text-center"
+                    >
                       Acciones
                     </th>
                   </tr>
                 </thead>
 
                 <tbody className="divide-y divide-gray-100">
-                  {animalesFiltrados.map((animal) => (
-                    <tr key={animal.id} className="hover:bg-green-50/60 transition-colors">
-                      <td className="p-4">
-                      <Link
-  href={`/ganado/${animal.id}`}
-  className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-semibold hover:bg-green-200 transition"
->
-  {animal.arete}
-</Link>
-                      </td>
-                      <td className="p-4">
-  <Link
-    href={`/ganado/${animal.id}`}
-    className="font-semibold text-green-700 hover:text-green-900 hover:underline transition-colors"
-  >
-    {animal.nombre}
-  </Link>
-</td>
-                      <td className="p-4 text-gray-600">{animal.raza}</td>
-                      <td className="p-4 text-gray-800 font-semibold">{animal.peso} kg</td>
-
-                      <td className="p-4">
-                        <div className="flex items-center justify-center gap-2">
-                          {rol === "admin" && (
-                            <button
-                              onClick={() => animal.id !== undefined && editarAnimal(animal.id)}
-                              className="inline-flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
-                            >
-                              ✏️ Editar
-                            </button>
-                          )}
-
-<Link
-  href={`/pesajes?animal=${animal.id}`}
-  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-semibold"
->
-  ⚖️ Pesajes
-</Link>
-
-                          {rol === "admin" && (
-                            <button
-                              onClick={() => animal.id !== undefined && eliminarAnimal(animal.id)}
-                              className="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors"
-                            >
-                              🗑️ Eliminar
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-
-                  {animalesFiltrados.length === 0 && (
+                  {cargando ? (
                     <tr>
                       <td colSpan={5} className="p-10 text-center text-gray-400">
-                        No se encontraron animales{busqueda ? ` para "${busqueda}"` : ""}.
+                        Cargando animales...
                       </td>
                     </tr>
+                  ) : (
+                    <>
+                      {animalesFiltrados.map((animal) => (
+                        <tr key={animal.id} className="hover:bg-green-50/60 transition-colors">
+                          <td className="p-4">
+                            <Link
+                              href={`/ganado/${animal.id}`}
+                              className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-semibold hover:bg-green-200 transition"
+                            >
+                              {animal.arete}
+                            </Link>
+                          </td>
+                          <td className="p-4">
+                            <Link
+                              href={`/ganado/${animal.id}`}
+                              className="font-semibold text-green-700 hover:text-green-900 hover:underline transition-colors"
+                            >
+                              {animal.nombre}
+                            </Link>
+                          </td>
+                          <td className="p-4 text-gray-600">{animal.raza}</td>
+                          <td className="p-4 text-gray-800 font-semibold">{animal.peso} kg</td>
+
+                          <td className="p-4">
+                            <div className="flex items-center justify-center gap-2">
+                              {rol === "admin" && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    animal.id !== undefined && editarAnimal(animal.id)
+                                  }
+                                  disabled={eliminandoId === animal.id}
+                                  className="inline-flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                  ✏️ Editar
+                                </button>
+                              )}
+
+                              <Link
+                                href={`/pesajes?animal=${animal.id}`}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg font-semibold"
+                              >
+                                ⚖️ Pesajes
+                              </Link>
+
+                              {rol === "admin" && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    animal.id !== undefined && eliminarAnimal(animal.id)
+                                  }
+                                  disabled={eliminandoId === animal.id}
+                                  className="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                  {eliminandoId === animal.id ? "Eliminando..." : "🗑️ Eliminar"}
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+
+                      {animalesFiltrados.length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="p-10 text-center text-gray-400">
+                            No se encontraron animales{busqueda ? ` para "${busqueda}"` : ""}.
+                          </td>
+                        </tr>
+                      )}
+                    </>
                   )}
                 </tbody>
               </table>
