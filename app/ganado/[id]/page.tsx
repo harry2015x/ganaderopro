@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import AuthGuard from "@/components/AuthGuard";
 import { supabase } from "@/lib/supabase";
+import Card from "@/components/ganado/Card";
 
 type Animal = {
   id: number;
@@ -276,22 +277,3 @@ export default function AnimalDetallePage() {
   );
 }
 
-function Card({
-    titulo,
-    valor,
-  }: {
-    titulo: string;
-    valor: string;
-  }) {
-    return (
-      <div className="rounded-2xl border border-green-100 bg-green-50 p-5 shadow-sm hover:shadow-md transition">
-        <p className="text-sm text-gray-500">
-          {titulo}
-        </p>
-  
-        <p className="mt-2 text-xl font-bold text-green-800">
-          {valor}
-        </p>
-      </div>
-    );
-  }
