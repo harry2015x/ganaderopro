@@ -1,8 +1,29 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import AuthGuard from "@/components/AuthGuard";
+import { supabase } from "@/lib/supabase";
+
+type Animal = {
+    id: number;
+    arete: string;
+    nombre: string;
+    raza: string;
+    peso: number;
+    sexo?: string;
+    fecha_nacimiento?: string;
+  };
 
 export default function AnimalDetallePage() {
+
+    const params = useParams();
+
+    const [animal, setAnimal] = useState<Animal | null>(null);
+  
+    const [loading, setLoading] = useState(true);
+    
   return (
     <AuthGuard>
       <main className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-6">
