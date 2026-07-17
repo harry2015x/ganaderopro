@@ -36,6 +36,7 @@ async function cargarAnimal() {
   if (error) {
     console.error(error);
   } else {
+    console.log(data);
     setAnimal(data);
   }
 
