@@ -48,6 +48,7 @@ const navGroups: NavGroup[] = [
     items: [
       { href: "/ganado", label: "Ganado", icon: Beef },
       { href: "/pesajes", label: "Pesajes", icon: Weight },
+      { href: "/sanidad", label: "Sanidad", icon: Syringe },
       { href: "#", label: "Vacunación", icon: Syringe },
       { href: "#", label: "Reproducción", icon: HeartPulse },
     ],
