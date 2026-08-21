@@ -48,67 +48,68 @@ import { supabase } from '@/lib/supabase';
 
 interface VwDashboardResumen {
   total_animales: number | null;
-  aplicaciones_proximas: number | null;
+  aplicaciones_proximas_30_dias: number | null;
   aplicaciones_vencidas: number | null;
   tratamientos_activos: number | null;
   enfermedades_activas: number | null;
-  stock_bajo: number | null;
-  productos_por_vencer: number | null;
+  lotes_stock_bajo: number | null;
+  lotes_por_vencer: number | null;
   campanas_activas: number | null;
 }
 
 interface VwProximaAplicacion {
-  id: number;
+  aplicacion_id: number;
   animal_id: number;
-  arete: string | null;
+  animal_arete: string | null;
   animal_nombre: string | null;
-  producto_nombre: string;
-  tipo: string | null;
+  producto: string;
+  tipo_producto: string | null;
   fecha_aplicacion: string | null;
   proxima_fecha: string;
   dias_restantes: number;
-  veterinario_nombre: string | null;
+  veterinario: string | null;
 }
 
 interface VwAplicacionVencida {
-  id: number;
+  aplicacion_id: number;
   animal_id: number;
-  arete: string | null;
+  animal_arete: string | null;
   animal_nombre: string | null;
-  producto_nombre: string;
-  tipo: string | null;
+  producto: string;
+  tipo_producto: string | null;
   fecha_aplicacion: string | null;
   proxima_fecha: string;
-  dias_vencido: number;
-  veterinario_nombre: string | null;
+  dias_atraso: number;
+  veterinario: string | null;
 }
 
 interface VwTratamientoActivo {
-  id: number;
+  tratamiento_id: number;
+  enfermedad_id: number;
   animal_id: number;
-  arete: string | null;
+  animal_arete: string | null;
   animal_nombre: string | null;
-  enfermedad_nombre: string;
-  producto_nombre: string;
+  enfermedad: string;
+  producto: string;
   fecha_inicio: string;
   fecha_fin: string | null;
-  estado: string;
+  estado_tratamiento: string;
 }
 
 interface VwEnfermedadActiva {
-  id: number;
+  enfermedad_id: number;
   animal_id: number;
-  arete: string | null;
+  animal_arete: string | null;
   animal_nombre: string | null;
-  nombre: string;
+  enfermedad: string;
   fecha_inicio: string;
   estado: string;
   dias_desde_inicio: number;
 }
 
 interface VwInventarioItem {
-  id: number;
-  producto_nombre: string;
+  inventario_id: number;
+  producto: string;
   numero_lote: string | null;
   cantidad: number;
   fecha_vencimiento: string | null;
@@ -119,8 +120,8 @@ interface VwInventarioItem {
 
 interface VwCoberturaCampana {
   campana_id: number;
-  campana_nombre: string;
-  campana_estado: string;
+  nombre: string;
+  estado: string;
   fecha_inicio: string;
   fecha_fin: string | null;
   total_animales: number;
@@ -457,12 +458,12 @@ interface KpiDefinition {
 
 const KPI_DEFINITIONS: KpiDefinition[] = [
   { key: 'total_animales', label: 'Total animales', icon: 'tag', accent: 'green', hint: 'En el hato' },
-  { key: 'aplicaciones_proximas', label: 'Aplicaciones próximas', icon: 'calendar', accent: 'blue', hint: 'Programadas' },
+  { key: 'aplicaciones_proximas_30_dias', label: 'Aplicaciones próximas', icon: 'calendar', accent: 'blue', hint: 'Programadas' },
   { key: 'aplicaciones_vencidas', label: 'Aplicaciones vencidas', icon: 'alertTriangle', accent: 'red', hint: 'Requieren atención' },
   { key: 'tratamientos_activos', label: 'Tratamientos activos', icon: 'pulse', accent: 'purple', hint: 'En curso' },
   { key: 'enfermedades_activas', label: 'Enfermedades activas', icon: 'thermometer', accent: 'orange', hint: 'Bajo seguimiento' },
-  { key: 'stock_bajo', label: 'Stock bajo', icon: 'box', accent: 'red', hint: 'Productos a reponer' },
-  { key: 'productos_por_vencer', label: 'Productos por vencer', icon: 'hourglass', accent: 'orange', hint: 'Revisar inventario' },
+  { key: 'lotes_stock_bajo', label: 'Stock bajo', icon: 'box', accent: 'red', hint: 'Productos a reponer' },
+  { key: 'lotes_por_vencer', label: 'Productos por vencer', icon: 'hourglass', accent: 'orange', hint: 'Revisar inventario' },
   { key: 'campanas_activas', label: 'Campañas activas', icon: 'flag', accent: 'blue', hint: 'En ejecución' },
 ];
 
@@ -552,7 +553,7 @@ async function loadDashboard(): Promise<{ data: DashboardData; errors: string[] 
   ] = await Promise.all([
     db.from('vw_dashboard_resumen').select('*').maybeSingle(),
     db.from('vw_proximas_aplicaciones').select('*').order('dias_restantes', { ascending: true }).limit(ROW_LIMIT),
-    db.from('vw_aplicaciones_vencidas').select('*').order('dias_vencido', { ascending: false }).limit(ROW_LIMIT),
+    db.from('vw_aplicaciones_vencidas').select('*').order('dias_atraso', { ascending: false }).limit(ROW_LIMIT),
     db.from('vw_tratamientos_activos').select('*').order('fecha_inicio', { ascending: false }).limit(ROW_LIMIT),
     db.from('vw_enfermedades_activas').select('*').order('dias_desde_inicio', { ascending: false }).limit(ROW_LIMIT),
     db.from('vw_inventario_bajo').select('*').order('cantidad', { ascending: true }).limit(ROW_LIMIT),
@@ -814,15 +815,15 @@ function SanidadDashboard() {
                     <TableHead headers={['Animal', 'Producto', 'Tipo', 'Fecha límite', 'Días vencido', 'Veterinario']} />
                     <tbody className="divide-y divide-slate-100">
                       {data.vencidas.map((row) => (
-                        <tr key={row.id} className={trHover}>
-                          <td className={td}>{animalLabel(row.arete, row.animal_nombre, row.animal_id)}</td>
-                          <td className={td}>{row.producto_nombre}</td>
-                          <td className={td}>{row.tipo ?? '—'}</td>
+                        <tr key={row.aplicacion_id} className={trHover}>
+                          <td className={td}>{animalLabel(row.animal_arete, row.animal_nombre, row.animal_id)}</td>
+                          <td className={td}>{row.producto}</td>
+                          <td className={td}>{row.tipo_producto ?? '—'}</td>
                           <td className={td}>{formatDate(row.proxima_fecha)}</td>
-                          <td className={`${td} font-semibold ${urgencyTextClasses(row.dias_vencido, 'vencido')}`}>
-                            {formatNumber(row.dias_vencido)} día(s)
+                          <td className={`${td} font-semibold ${urgencyTextClasses(row.dias_atraso, 'vencido')}`}>
+                            {formatNumber(row.dias_atraso)} día(s)
                           </td>
-                          <td className={td}>{row.veterinario_nombre ?? 'Sin asignar'}</td>
+                          <td className={td}>{row.veterinario ?? 'Sin asignar'}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -846,15 +847,15 @@ function SanidadDashboard() {
                     <TableHead headers={['Animal', 'Producto', 'Tipo', 'Fecha', 'Días restantes', 'Veterinario']} />
                     <tbody className="divide-y divide-slate-100">
                       {data.proximas.map((row) => (
-                        <tr key={row.id} className={trHover}>
-                          <td className={td}>{animalLabel(row.arete, row.animal_nombre, row.animal_id)}</td>
-                          <td className={td}>{row.producto_nombre}</td>
-                          <td className={td}>{row.tipo ?? '—'}</td>
+                        <tr key={row.aplicacion_id} className={trHover}>
+                          <td className={td}>{animalLabel(row.animal_arete, row.animal_nombre, row.animal_id)}</td>
+                          <td className={td}>{row.producto}</td>
+                          <td className={td}>{row.tipo_producto ?? '—'}</td>
                           <td className={td}>{formatDate(row.proxima_fecha)}</td>
                           <td className={`${td} font-semibold ${urgencyTextClasses(row.dias_restantes, 'restante')}`}>
                             {formatNumber(row.dias_restantes)} día(s)
                           </td>
-                          <td className={td}>{row.veterinario_nombre ?? 'Sin asignar'}</td>
+                          <td className={td}>{row.veterinario ?? 'Sin asignar'}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -882,9 +883,9 @@ function SanidadDashboard() {
                     <TableHead headers={['Animal', 'Enfermedad', 'Fecha inicio', 'Estado', 'Días de evolución']} />
                     <tbody className="divide-y divide-slate-100">
                       {data.enfermedades.map((row) => (
-                        <tr key={row.id} className={trHover}>
-                          <td className={td}>{animalLabel(row.arete, row.animal_nombre, row.animal_id)}</td>
-                          <td className={td}>{row.nombre}</td>
+                       <tr key={row.enfermedad_id} className={trHover}>
+                          <td className={td}>{animalLabel(row.animal_arete, row.animal_nombre, row.animal_id)}</td>
+                          <td className={td}>{row.enfermedad}</td>
                           <td className={td}>{formatDate(row.fecha_inicio)}</td>
                           <td className={td}>
                             <Badge estado={row.estado} />
@@ -912,14 +913,14 @@ function SanidadDashboard() {
                     <TableHead headers={['Animal', 'Enfermedad', 'Producto', 'Inicio', 'Fin', 'Estado']} />
                     <tbody className="divide-y divide-slate-100">
                       {data.tratamientos.map((row) => (
-                        <tr key={row.id} className={trHover}>
-                          <td className={td}>{animalLabel(row.arete, row.animal_nombre, row.animal_id)}</td>
-                          <td className={td}>{row.enfermedad_nombre}</td>
-                          <td className={td}>{row.producto_nombre}</td>
+                        <tr key={row.tratamiento_id} className={trHover}>
+                          <td className={td}>{animalLabel(row.animal_arete, row.animal_nombre, row.animal_id)}</td>
+                          <td className={td}>{row.enfermedad}</td>
+                          <td className={td}>{row.producto}</td>
                           <td className={td}>{formatDate(row.fecha_inicio)}</td>
                           <td className={td}>{formatDate(row.fecha_fin)}</td>
                           <td className={td}>
-                            <Badge estado={row.estado} />
+                            <Badge estado={row.estado_tratamiento} />
                           </td>
                         </tr>
                       ))}
@@ -948,8 +949,8 @@ function SanidadDashboard() {
                     <TableHead headers={['Producto', 'Lote', 'Cantidad', 'Vencimiento', 'Ubicación', 'Estado']} />
                     <tbody className="divide-y divide-slate-100">
                       {data.stockBajo.map((row) => (
-                        <tr key={row.id} className={trHover}>
-                          <td className={td}>{row.producto_nombre}</td>
+                        <tr key={row.inventario_id} className={trHover}>
+                          <td className={td}>{row.producto}</td>
                           <td className={td}>{row.numero_lote ?? '—'}</td>
                           <td className={`${td} font-semibold text-rose-600`}>{formatNumber(row.cantidad)}</td>
                           <td className={td}>{formatDate(row.fecha_vencimiento)}</td>
@@ -984,8 +985,8 @@ function SanidadDashboard() {
                     <TableHead headers={['Producto', 'Lote', 'Cantidad', 'Vencimiento', 'Ubicación', 'Estado']} />
                     <tbody className="divide-y divide-slate-100">
                       {data.porVencer.map((row) => (
-                        <tr key={row.id} className={trHover}>
-                          <td className={td}>{row.producto_nombre}</td>
+                        <tr key={row.inventario_id} className={trHover}>
+                          <td className={td}>{row.producto}</td>
                           <td className={td}>{row.numero_lote ?? '—'}</td>
                           <td className={td}>{formatNumber(row.cantidad)}</td>
                           <td className={`${td} font-semibold text-amber-600`}>{formatDate(row.fecha_vencimiento)}</td>
@@ -1025,9 +1026,9 @@ function SanidadDashboard() {
                       const pct = row.porcentaje_cobertura ?? 0;
                       return (
                         <tr key={row.campana_id} className={trHover}>
-                          <td className={td}>{row.campana_nombre}</td>
+                          <td className={td}>{row.nombre}</td>
                           <td className={td}>
-                            <Badge estado={row.campana_estado} />
+                            <Badge estado={row.estado} />
                           </td>
                           <td className={td}>{formatNumber(row.total_animales)}</td>
                           <td className={td}>{formatNumber(row.aplicados)}</td>
